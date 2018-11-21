@@ -1,0 +1,56 @@
+body {
+  font-family: 'Palatino', 'Garamond', serif;
+}
+
+h1 {
+  font-size: 2em;
+}
+
+.info {
+  text-align: center;
+}
+
+.em-svg {
+    width: 70px !important;
+    height: 70px !important;
+}
+
+.wrapper {
+  margin: 50px auto 0;
+  width: 450px;
+}
+
+.info .red {
+  color: red;
+}
+
+.info .black {
+  color: black;
+}
+
+.play-again {
+  display: inline-block;
+  margin-bottom: 2em;
+  height: 40px;
+  line-height: 40px;
+  width: 50%;
+  background: mediumseagreen;
+  color: white;
+  text-decoration: none;
+  font-family: helvetica;
+  opacity: 0.9;
+}
+.play-again:hover {
+  opacity: 1;
+}
+
+@media (max-width: 460px) {
+  .message {
+    font-size: 1.3em;
+  }
+
+  .wrapper {
+    margin: 20px auto 0;
+    width: 240px;
+  }
+}
