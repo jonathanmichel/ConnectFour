@@ -22,7 +22,9 @@ def gameRow(row):
    
 @app.route('/play/<int:player>/<int:row>', strict_slashes=False)
 def playRow(player,row):    
-    return addHeader(game.setPlayToken(player,row))
+    tst = game.setPlayToken(player,row) 
+    tst.headers['Access-Control-Allow-Origin'] = '*'
+    return tst
     
 @app.route('/getShittyEmojiGame', strict_slashes=False)
 def getShittyEmojiGame():
@@ -30,7 +32,9 @@ def getShittyEmojiGame():
 
 @app.route('/getGame', strict_slashes=False)
 def getGame():
-    return addHeader(game.text())    
+    tst = game.getGame()    
+    tst.headers['Access-Control-Allow-Origin'] = '*'
+    return tst
     
 @app.route('/resetGame', strict_slashes=False)
 def resetGame():

@@ -1,10 +1,11 @@
 from enum import Enum
 import emoji
+from flask import jsonify
 
 class Token(Enum):
     EMPTY = 0
-    RED = 1
-    YELLOW = 2
+    PLAYER0 = 1
+    PLAYER1 = 2
     
 width, height = 6, 7
 
@@ -22,9 +23,9 @@ class Game():
     
     def setToken(self, line):
         if self.__player == 0:
-            token = Token.RED
+            token = Token.PLAYER0
         else:
-            token = Token.YELLOW
+            token = Token.PLAYER1
         
         if line > width or line < 0:
             return False
@@ -39,27 +40,24 @@ class Game():
                     return True
             return False
            
-    # return 1 if success
-    # return 2 if not your turn
-    # return 3 if not in grid
-    # return 4 if line full
-    # return 5 player not 0 or 1
-    # return 6 player 0 win
-    # return 7 player 1 win
-    
-    def setPlayToken(self, player, line):    
+
+    def setPlayToken(self, player, line):   
+        listDic = {}    
         if player != self.__player:
-            return "2"
+            listDic["ERROR"] = "NOT YOUR TURN"
+            return jsonify(listDic)
         if player > 1 or player < 0:
-            return "5"
+            listDic["ERROR"] = "PLAYER MUST BE 0 OR 1"
+            return jsonify(listDic)
         
         if self.__player == 0:
-            token = Token.RED
+            token = Token.PLAYER0
         else:
-            token = Token.YELLOW
+            token = Token.PLAYER1
         
         if line > width or line < 0:
-            return "3"
+            listDic["ERROR"] = "TOKEN OUT OF GRID"
+            return jsonify(listDic)
         else:
             for w in range(0,height-1):
                 if self.__grid[line][w] == Token.EMPTY:
@@ -68,12 +66,16 @@ class Game():
                         self.__player = 1
                     else:
                         self.__player = 0
-                    if self.isWin() == Token.RED:
-                        return "6"
-                    if self.isWin() == Token.YELLOW:
-                        return "7"
-                    return "1"
-            return "4"
+                   
+                    listDic['grid'] = self.text()
+                    listDic['player'] = str(self.__player)
+                    listDic['isWin'] = str(self.isWin())
+                    return jsonify(listDic)
+                    
+            listDic['grid'] = self.text()
+            listDic['player'] = str(self.__player)
+            listDic['isWin'] = str(self.isWin())
+            return jsonify(listDic)
             
             
     def isWin(self):
@@ -105,9 +107,9 @@ class Game():
             txt = txt + "<tr>"
             for h in range(0,height):
                 txt = txt + "<td>"
-                if self.__grid[h][width-1-w] == Token.RED:
+                if self.__grid[h][width-1-w] == Token.PLAYER0:
                     txt = txt+emoji.emojize(':thumbs_up:')
-                elif self.__grid[h][width-1-w] == Token.YELLOW:
+                elif self.__grid[h][width-1-w] == Token.PLAYER1:
                     txt = txt+emoji.emojize(':scissors:')
                 elif self.__grid[h][width-1-w] == Token.EMPTY:
                     txt = txt+emoji.emojize(':white_large_square:')
@@ -115,15 +117,30 @@ class Game():
                 txt = txt + "</td>"
             txt = txt + "</th>"
         txt = txt + "</table>"
-        return txt        
+        return txt     
+
+    
+    # grid text()
+    # turn 0/1
+    # isWin 0/1
+    # isDraw 0/1
+            
+    def getGame(self):
+    
+        listDic = {}
+        listDic['grid'] = self.text()
+        listDic['player'] = str(self.__player)
+        listDic['isWin'] = str(self.isWin())
+    
+        return jsonify(listDic)
         
     def text(self):
         txt = ""
         for w in range(0,width):
             for h in range(0,height):
-                if self.__grid[h][width-1-w] == Token.RED:
+                if self.__grid[h][width-1-w] == Token.PLAYER0:
                     txt = txt+"1"
-                elif self.__grid[h][width-1-w] == Token.YELLOW:
+                elif self.__grid[h][width-1-w] == Token.PLAYER1:
                     txt = txt+"0"
                 elif self.__grid[h][width-1-w] == Token.EMPTY:
                     txt = txt+"x"
