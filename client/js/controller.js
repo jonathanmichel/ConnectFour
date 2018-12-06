@@ -1,103 +1,162 @@
-
 $(document).ready(function() {
-    // Setup game
-    var reg = new RegExp('^[1-2]$');
-    var id;
+    var clipboard = new ClipboardJS('.btn');
+    
+     // Ask server port
+    var reg = new RegExp('^\d*')
+    var port;
     while(true) {
-        id = prompt("Choose player 1 or 2 ?");
-        if(reg.test(id))
+        port = prompt("Choose port :", "15576");
+        if(reg.test(port))
             break;
     }
-    config.playerId = id - 1;
-    $('#player').text(config.playerPrefix + (config.playerId + 1));
-    
-    resetGame();
-    getGame();
-    var tid = setInterval(update, 1000);
-    
-    function update() {
-        getGame();
-    }
-    
-    function abortTimer() {
-      clearInterval(tid);
-    }
+    config.serverPort = port;
 
+    joinGame(getUrlParameter("gameId"));
+    
+    window.addEventListener('beforeunload', function(e) {
+        quitGame();
+        //e.preventDefault(); //per the standard
+        //e.returnValue = ''; //required for Chrome
+    });
+});
+
+function loadGame() {
+    //*/
+    $('#player').text(config.playerPrefix + (config.player + 1) + " ");
+    
+    var content = "<input id='gameUrl' value='http://techiteasy.ch/game?gameId=" + config.gameId + "'><button class='btn' data-clipboard-target='#gameUrl'>Copy to clipboard</button>";
+    $('#player').append(content);
+    
+    loadBoard();
+    
+    updateGame();
+    timerId = setInterval(update, 1000);
+        
     // Click on the board
     $('.board_button').click(function(e) {
         var x_pos = $(this).closest('tr').find('td').index($(this).closest('td'));
 
         // todo Send x position
-        sendAction(config.playerId, x_pos);
+        sendAction(x_pos);
     });
 
     $('.play-again').click(function(e) {
         location.reload();
     });
+}
 
-});
+function update() {
+    updateGame();
+}
 
-function getGame() {
-    $.ajax({
-        url: "http://tcp.ngrok.io:17582/getGame"
-    }).then(function(data) {
-        data = String(data.replace(new RegExp("\n", 'g'),""));
+function abortTimer() {
+    clearInterval(timerId);
+}
+
+function parserJson(data) {
+    data.grid = String(data.grid.replace(new RegExp("\n", 'g'),""));
         for (var x = 0; x < 7; x++) {
             for (var y = 0; y < 6; y++) {
-                    board[y][x] = data.charAt(7 * y + x);
+                    board[y][x] = data.grid.charAt(7 * y + x);
                 }
         }
-        printBoard();
+
+        if(data.isWin == "0") {
+            if(parseInt(data.player) == config.player)
+                $('#state').text("Your turn");
+            else
+                $('#state').text("Waiting for opponent");
+        }
+
+        var restartGame = "<a onclick='resetGame()' href='#'>Restart game</a>";
+
+        switch(data.isWin) {
+            case "Token.PLAYER0":
+                $('#state').text("Player 1 won - ");
+                $('#state').append(restartGame);
+                break;
+            case "Token.PLAYER1":
+                $('#state').text("Player 2 won - ");
+                $('#state').append(restartGame);
+            break;
+        }
+    updateBoard();
+}
+
+function newGame() {
+    $.ajax({
+        url: getServerUrl() + "/createGame"
+    }).then(function(data) {
+        if(data.playerID != 0 && data.gameID != 0) {
+            config.playerId = data.playerID;
+            config.gameId = data.gameID;
+            config.player = 0;
+            
+            var copyInput = document.getElementById("gameId");
+            copyInput.value = data.gameID;
+            copyInput.select();
+            document.execCommand("copy");
+            
+            loadGame();
+        } else {
+            console.log("Create game failed");
+        }
     });
 }
 
+function joinGame() {
+    var gameId = prompt("Enter game ID");
+    joinGame(gameId);    
+}
 
-function sendAction(player, position) {
-    /*
-    # return 1 if success
-    # return 2 if not your turn
-    # return 3 if not in grid
-    # return 4 if line full
-    # return 5 player not 0 or 1
-    # return 6 player 0 win
-    # return 7 player 1 win
-    */
-    var url = "http://tcp.ngrok.io:17582/play/" + player + "/" + position;    
+function joinGame(gameId) {
+    if(gameId == null || gameId == undefined)
+        return;
+    
+     $.ajax({
+        url: getServerUrl() + "/joinGame/" + gameId
+    }).then(function(data) {
+        if(data.playerID != 0 && data.gameID != 0) {
+            config.playerId = data.playerID;
+            config.gameId = data.gameID;
+            config.player = 1;
+            loadGame();
+        } else {
+            console.log("Join game failed");
+        }
+    });
+}
+
+function getServerUrl() {
+    return config.serverUrl + config.serverPort;
+}
+
+function quitGame() {
+    $.ajax({
+        url: getServerUrl() + "/quitGame/" + config.playerId
+    });
+}
+
+function updateGame() {
+    $.ajax({
+        url: getServerUrl() + "/getGame/" + config.playerId
+    }).then(function(data) {
+        parserJson(data);
+    });
+}
+
+function sendAction(position) {
+    var url = getServerUrl() + "/play/" + config.playerId + "/" + position;    
     $.ajax({
         url: url
     }).then(function(data) {
-        switch(data) {
-            case '1':
-                $('#state').text("Nice move !");
-                break;
-            case '2':
-                $('#state').text("Wait your turn bitch");
-                console.log("atasioth");
-                break;
-            case '3':
-                console.log("Not in grid");
-                break;
-            case '4':
-                $('#state').text("Line is full asshole");
-                break;
-            case '5':
-                console.log("Invalid player");
-                break;
-            case '6':
-                $('#state').text("Player 1 win");
-                break;
-            case '7':
-                $('#state').text("Player 2 win");
-                break;
-            default:
-                console.log("WTF?");
-                break;
-        }
+        parserJson(data);
     });
+
 }
 
 function resetGame() {
     $.ajax({ 
-        url: "http://tcp.ngrok.io:17582/resetGame"
+        url: getServerUrl() + "/resetGame/" + config.playerId
     });
 }

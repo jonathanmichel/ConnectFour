@@ -14,73 +14,42 @@
   crossorigin="anonymous"></script>
   <script src="js/vars.js"></script>
   <script src="js/functions.js"></script>
+  <script src="js/view.js"></script>
   <script src="js/controller.js"></script>
+  <script src="js/clipboard.min.js"></script>
 </head>
 <body>
+  <section class="wrappers">
+    <input type="hidden" value="" id="gameId">
+    <div class="header">
+        <div style="text-align: center;">
+            <h3><span id="player"></span></h3>
+        </div>
+        <div style="text-align: center;">
+            <h2 class="message"><span id="state"></span></h2>
+        </div>
+    </div>
+  </section>
   <section class="wrapper">
-    <div class="info">
-      <h1 class="title">Connect Four!</h1>
-      <h2 class="message"><span id="player"></span></h2>
-      <h2 class="message"><span id="state">...</span></h2>
+    <div class="info" id="info">
+      <h1 class="title">Connect four!</h1>
+      
       <a href="#" class="play-again" style="display: none;">Play Again</a>
     </div>
-    <table class="board">
-      <tbody>
-        <tr>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-        </tr>
-        <tr>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-        </tr>
-        <tr>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-        </tr>
-        <tr>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-        </tr>
-        <tr>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-        </tr>
-        <tr>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-          <td><i class="em-svg em-black_large_square board_button"></i></td>
-        </tr>
-      </tbody>
+    <div id="menu">
+        <div style="text-align: center;">
+            <a href="#" onclick='newGame()'><h2>Start new game</h2></a>
+        </div>
+        
+        <div style="text-align: center;">
+            <h3>OR</h3>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="#" onclick='joinGame()'><h2>Join game</h2></a>
+        </div>
+    </div>
+    
     </table>
   </section>
 </body>

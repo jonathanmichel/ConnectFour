@@ -16,8 +16,8 @@ h1 {
 }
 
 .wrapper {
-  margin: 50px auto 0;
-  width: 450px;
+    width: 100%;
+    margin: auto;
 }
 
 .info .red {
@@ -40,17 +40,7 @@ h1 {
   font-family: helvetica;
   opacity: 0.9;
 }
+
 .play-again:hover {
   opacity: 1;
-}
-
-@media (max-width: 460px) {
-  .message {
-    font-size: 1.3em;
-  }
-
-  .wrapper {
-    margin: 20px auto 0;
-    width: 240px;
-  }
 }
