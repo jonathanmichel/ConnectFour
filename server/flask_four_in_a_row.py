@@ -14,10 +14,11 @@ from fourInARow import *
 
 app = Flask(__name__)
 
+timeCheck = 60*5
+timeSleep = 4
+
 game = Game(0)
 gameArray = []
-
-#'/createGame' return playerID and gameID
 
 @app.route('/createGame', strict_slashes=False)
 def createGame():
@@ -29,7 +30,6 @@ def createGame():
     return tmp
     
     
-#'/joinGame/<int:game>' return playerID and gameID or error
 @app.route('/joinGame/<string:gameID>', strict_slashes=False)
 def joinGame(gameID):
     for game in gameArray:
@@ -46,7 +46,6 @@ def joinGame(gameID):
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
     
-#'/joinGame/<int:game>' return playerID and gameID or error
 @app.route('/quitGame/<string:playerID>', strict_slashes=False)
 def quitGame(playerID):
     print(len(gameArray))
@@ -89,7 +88,7 @@ def getShittyEmojiGame():
 def getGame(playerID):
     for game in gameArray:
         if game.isPlayer(playerID) == True:        
-            tmp = game.getGame() 
+            tmp = game.getGame(playerID) 
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
     listDic = {}     
@@ -116,15 +115,25 @@ def addHeader(text):
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
     
-def gameTimeCheck():
+def gameTimeCheck():     
     while(1):
-        print(len(gameArray))
-        for game in gameArray:
-            if time.time()-game.getTime() == 60*1:      
+        print("Player berfore gameTimeCheck: "+str(len(gameArray)))
+        for game in gameArray:            
+            if time.time()-game.getTimeP0() > timeCheck:    
+                game.setPlayer0Quit(True)
+            else:  
+                game.setPlayer0Quit(False)
+            
+            if time.time()-game.getTimeP1() > timeCheck:    
+                game.setPlayer1Quit(True)
+            else:  
+                game.setPlayer1Quit(False)
+            
+            if game.getPlayersQuit() == True:
                 gameArray.remove(game)
                 break
-        print(len(gameArray))
-        time.sleep(5)
+        print("Player after gameTimeCheck: "+str(len(gameArray)))
+        time.sleep(timeSleep)
 
 from logging import FileHandler, Formatter, DEBUG
 

@@ -19,13 +19,15 @@ class Game():
         self.__gameID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
         self.__player0ID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
         self.__player1ID = ""
+        self.__player0Quit = False
+        self.__player1Quit = False
         self.__player = player
         self.__numberQuit = 0
         self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)] 
-        self.__time = time.time()
+        self.__timeP0 = time.time()
+        self.__timeP1 = time.time()
         
     def reset(self):
-        self.__time = time.time()
         self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)] 
         self.__player = random.randint(0,1)
         
@@ -33,15 +35,12 @@ class Game():
         self.__numberQuit = self.__numberQuit + 1
     
     def getNumberQuit(self):
-        self.__time = time.time()
         return self.__numberQuit
         
     def getGrid(self):
-        self.__time = time.time()
         return self.__grid
     
     def setToken(self, line):
-        self.__time = time.time()
         if self.__player == 0:
             token = Token.PLAYER0
         else:
@@ -62,7 +61,6 @@ class Game():
            
 
     def setPlayToken(self, player, line):  
-        self.__time = time.time() 
         listDic = {}    
         print(player)
         print(self.__player0ID)
@@ -93,16 +91,19 @@ class Game():
                     listDic['grid'] = self.text()
                     listDic['player'] = str(self.__player)
                     listDic['isWin'] = str(self.isWin())
+                    listDic['player0Status'] = str(not self.__player0Quit)
+                    listDic['player1Status'] = str(not self.__player1Quit)
                     return jsonify(listDic)
                     
             listDic['grid'] = self.text()
             listDic['player'] = str(self.__player)
             listDic['isWin'] = str(self.isWin())
+            listDic['player0Status'] = str(not self.__player0Quit)
+            listDic['player1Status'] = str(not self.__player1Quit)
             return jsonify(listDic)
             
             
-    def isWin(self):
-        self.__time = time.time()    
+    def isWin(self): 
         for row in range(0,7):
             for col in range(0,7):
                 try:
@@ -129,7 +130,6 @@ class Game():
         return 0
             
     def emojiText(self):
-        self.__time = time.time()
         txt = '<table style="width:100%">'
         for w in range(0,width):
             txt = txt + "<tr>"
@@ -149,12 +149,18 @@ class Game():
 
     
 
-    def getGame(self):    
-        self.__time = time.time()
+    def getGame(self,playerID):    
+        if playerID == self.__player0ID:
+            self.__timeP0 = time.time()
+        else:
+            self.__timeP1 = time.time()
+        
         listDic = {}
         listDic['grid'] = self.text()
         listDic['player'] = str(self.__player)
         listDic['isWin'] = str(self.isWin())
+        listDic['player0Status'] = str(not self.__player0Quit)
+        listDic['player1Status'] = str(not self.__player1Quit)
     
         return jsonify(listDic)
         
@@ -167,7 +173,6 @@ class Game():
         return jsonify(listDic)
         
     def getIdJoin(self):   
-        self.__time = time.time() 
         listDic = {}
         if self.__player1ID == "":        
             self.__player1ID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
@@ -180,7 +185,6 @@ class Game():
         return jsonify(listDic)
     
     def isPlayer(self, testPlayerID):
-        self.__time = time.time()
         if testPlayerID == self.__player0ID or testPlayerID == self.__player1ID :
             return True
         else:
@@ -190,8 +194,20 @@ class Game():
         self.__time = time.time()
         return self.__gameID
         
-    def getTime(self):
-        return self.__time
+    def getTimeP0(self):
+        return self.__timeP0  
+        
+    def getTimeP1(self):
+        return self.__timeP1
+    
+    def setPlayer0Quit(self, value):
+        self.__player0Quit = value
+        
+    def setPlayer1Quit(self, value):
+        self.__player1Quit = value
+        
+    def getPlayersQuit(self):
+        return self.__player0Quit and self.__player1Quit
     
     def text(self):
         self.__time = time.time()

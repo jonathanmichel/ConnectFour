@@ -1,7 +1,7 @@
 # ConnectFour, an Embedeed Hardware alternative
 
 ## Description
-A little project made to pass time. A connect four game with a Web emoji based on EMOJI (Client folder).
+A little project made to pass time. A connect four game with a Web interface based on EMOJI (Client folder).
 All the logic of the game is taken care by a little RESTFULL server in Python (Server Folder). 
 
 ## Client 
@@ -16,19 +16,39 @@ Link the server to ngrok client with ```ngrok tcp -region eu 5002```, the output
 ### Rout available in the api
 Here are described all the actual available rout of the RESTFULL server
 
-#### /game/<int:row>
-Deprecated version of the ```/play``` (see below). Is switching between player automatically and same output as ```/getShittyEmojiGame``` 
+#### /createGame
+Create a new connect four game, will return the unique gameID and playerID in JSON format.
+```
+{
+  "gameID": "qIFLoJhBpD", 
+  "playerID": "eulqlCWflc"
+}
+```
+
+#### /joinGame/<string:gameID>
+Join an already existing connect four game by its gameID, will return the unique gameID and playerID in JSON format.
+```
+{
+  "gameID": "qIFLoJhBpD", 
+  "playerID": "OBNSH31118"
+}
+```
+
+#### /quitGame/<string:playerID>
+Tell that a player quited a game. Michel can't implement it in his web app... So not used... But works though 
    
-#### /play/<int:player>/<int:row>
+#### /play/<string:playerID>/<int:row>
 Answer example formated in JSON
 Actual route to play the game, need to indicate which player is playing (0,1) and which row did he choose.
 
 Example of answer formated in JSON if in case of success
 ```
 {
-  "grid": "xxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\n", 
+  "grid": "xxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nx1xxxxx\n", 
   "isWin": "0", 
-  "player": "0"
+  "player": "1", 
+  "player0Status": "True", 
+  "player1Status": "True"
 }
 ``` 
 
@@ -39,21 +59,27 @@ Example of answer formated in JSON if in case of error
 }
 ``` 
     
-#### /getShittyEmojiGame
-
-Shitty example version of the connect four board, works in browser
-
-#### /getGame
+#### /getGame/<string:playerID>
 
 Example of answer formated in JSON
 ```
 {
-  "grid": "xxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\n", 
+  "grid": "xxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nx1xxxxx\n", 
   "isWin": "0", 
-  "player": "0"
+  "player": "1", 
+  "player0Status": "True", 
+  "player1Status": "True"
 }
 ``` 
     
-#### 'resetGame
+#### /resetGame/<string:playerID>
 
 Reset Game, no answer
+
+#### /getShittyEmojiGame
+
+Deprecated
+Shitty example version of the connect four board, works in browser
+
+#### /game/<int:row>
+Deprecated version of the ```/play``` (see above). Is switching between player automatically and same output as ```/getShittyEmojiGame``` 
