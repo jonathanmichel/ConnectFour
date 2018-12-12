@@ -7,11 +7,15 @@ All the logic of the game is taken care by a little RESTFULL server in Python (S
 ## Client 
 
 ## Server
-### Launch the server and link with ngrok
+### Launch the server and link with ngrok or serveo
 
 Launch the server with ``` python flask_four_in_a_row.py ```.
+
+#### Link with ngrok
 Link the server to ngrok client with ```ngrok tcp -region eu 5002```, the output from ngrok will give you the port to use in the Web GUI.
 
+#### Link with serveo
+Link the server to serveo subdomain with ```ssh -R connectfour.serveo.net:80:localhost:5002 serveo.net```, the server is now redirected to ```connectfour.serveo.net```.
 
 ### Rout available in the api
 Here are described all the actual available rout of the RESTFULL server
