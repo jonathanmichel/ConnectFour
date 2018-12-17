@@ -1,162 +1,184 @@
 $(document).ready(function() {
-    var clipboard = new ClipboardJS('.btn');
+    $('#newGame').click(function(event){
+        event.preventDefault()
+        createGame()
+    })
     
-     // Ask server port
-    var reg = new RegExp('^\d*')
-    var port;
-    while(true) {
-        port = prompt("Choose port :", "15576");
-        if(reg.test(port))
-            break;
-    }
-    config.serverPort = port;
-
-    joinGame(getUrlParameter("gameId"));
-    
-    window.addEventListener('beforeunload', function(e) {
-        quitGame();
-        //e.preventDefault(); //per the standard
-        //e.returnValue = ''; //required for Chrome
-    });
-});
-
-function loadGame() {
-    //*/
-    $('#player').text(config.playerPrefix + (config.player + 1) + " ");
-    
-    var content = "<input id='gameUrl' value='http://techiteasy.ch/game?gameId=" + config.gameId + "'><button class='btn' data-clipboard-target='#gameUrl'>Copy to clipboard</button>";
-    $('#player').append(content);
-    
-    loadBoard();
-    
-    updateGame();
-    timerId = setInterval(update, 1000);
+    favicon = new Favico({
+        position  :'up',
+        animation :'pop',
+        bgColor   :'#dd2c00',
+        textColor :'#fff0e2'
+    })
         
-    // Click on the board
-    $('.board_button').click(function(e) {
-        var x_pos = $(this).closest('tr').find('td').index($(this).closest('td'));
+    var gameId = getUrlParameter("gameId")
+    if(gameId != null || gameId != undefined) {
+        var playerId = getUrlParameter("playerId")
+        if(playerId != null || playerId != undefined) {
+            var player = getUrlParameter("player")
+            loadGame(gameId, playerId, player)
+        } else {
+            joinGameId(gameId)
+        }
+    }
+})
 
-        // todo Send x position
-        sendAction(x_pos);
-    });
-
+function loadGame(gameId, playerId, player) {        
+    config.playerId = playerId
+    config.gameId = gameId
+    config.player = player
+    
+    $("#mainView").remove()
+    $('#gameView').show()
+    
+    if(player == 0) {
+        $("#inviteLinkInput").val(server + "game?gameId=" + config.gameId)
+        $("#inviteLinkBtn").click(function(event){
+            toastr.info("Link copied to clipboard")
+        })
+        var clipboard = new ClipboardJS('.btn')
+    } else {
+        $("#linkDiv").remove();
+    }
+    
+    loadBoard()
+    
+    updateGame()
+    timerId = setInterval(update, 1000)
+    
     $('.play-again').click(function(e) {
-        location.reload();
-    });
+        location.reload()
+    })
+    
+    toastr.success("Game loaded")
 }
 
 function update() {
-    updateGame();
+    updateGame()
 }
 
 function abortTimer() {
-    clearInterval(timerId);
+    clearInterval(timerId)
 }
 
 function parserJson(data) {
-    data.grid = String(data.grid.replace(new RegExp("\n", 'g'),""));
-        for (var x = 0; x < 7; x++) {
-            for (var y = 0; y < 6; y++) {
-                    board[y][x] = data.grid.charAt(7 * y + x);
-                }
+    if('ERROR' in data) {
+        toastr.error(data.ERROR)
+        return
+    }
+    console.log(data)
+    data.grid = String(data.grid.replace(new RegExp("\n", 'g'),""))
+    for (var x = 0; x < 7; x++) {
+        for (var y = 0; y < 6; y++) {
+                board[y][x] = data.grid.charAt(7 * y + x)
+            }
+    }
+
+    if(data.isWin == "0") {
+        var currentPlayer = parseInt(data.player)
+        // Player changed
+        if(lastPlayer != currentPlayer) {
+            favicon.badge(currentPlayer == config.player ? "!" : "")
+        }  
+        
+        if(currentPlayer == config.player) {
+            $('#stateMessage').text("Your turn")
+            document.title = "Connect four - Your turn"
+        } else {
+            $('#stateMessage').text("Waiting for opponent")
+            document.title = "Connect four"
         }
+        lastPlayer = currentPlayer;
+    }
 
-        if(data.isWin == "0") {
-            if(parseInt(data.player) == config.player)
-                $('#state').text("Your turn");
-            else
-                $('#state').text("Waiting for opponent");
-        }
-
-        var restartGame = "<a onclick='resetGame()' href='#'>Restart game</a>";
-
-        switch(data.isWin) {
-            case "Token.PLAYER0":
-                $('#state').text("Player 1 won - ");
-                $('#state').append(restartGame);
-                break;
-            case "Token.PLAYER1":
-                $('#state').text("Player 2 won - ");
-                $('#state').append(restartGame);
+    var restartGame = "<a onclick='resetGame()' href='#'>Restart game</a>"
+    switch(data.isWin) {
+        case "Token.PLAYER0":
+        case "Token.PLAYER1":
+            var winnerId = data.isWin.substr(data.isWin.length-1)
+            $('#stateMessage').text((winnerId == config.player ? "You" : "Opponent") + " won - ")
+            $('#stateMessage').append(restartGame)
+            //$('.board_button').unbind()
             break;
-        }
-    updateBoard();
+    }
+    updateBoard()
 }
 
-function newGame() {
+
+function createGame() {
+    toastr.info("Creating new game...")
     $.ajax({
-        url: getServerUrl() + "/createGame"
-    }).then(function(data) {
-        if(data.playerID != 0 && data.gameID != 0) {
-            config.playerId = data.playerID;
-            config.gameId = data.gameID;
-            config.player = 0;
-            
-            var copyInput = document.getElementById("gameId");
-            copyInput.value = data.gameID;
-            copyInput.select();
-            document.execCommand("copy");
-            
-            loadGame();
-        } else {
-            console.log("Create game failed");
+        url: config.serverUrl + "/createGame",
+        success : function(data) {
+            if(data.playerID != 0 && data.gameID != 0) {            
+                window.location.href = server + "game?gameId=" + data.gameID + "&playerId=" + data.playerID + "&player=0"
+            } else {
+                toastr.error("Game creation failed")
+            }
+        },
+        error : function (XMLHttpRequest, textStatus, errorThrown) {
+            toastr.error("Server unreachable")
         }
-    });
+    })
 }
 
-function joinGame() {
-    var gameId = prompt("Enter game ID");
-    joinGame(gameId);    
-}
-
-function joinGame(gameId) {
+function joinGameId(gameId) {
     if(gameId == null || gameId == undefined)
-        return;
+        return
     
-     $.ajax({
-        url: getServerUrl() + "/joinGame/" + gameId
-    }).then(function(data) {
-        if(data.playerID != 0 && data.gameID != 0) {
-            config.playerId = data.playerID;
-            config.gameId = data.gameID;
-            config.player = 1;
-            loadGame();
-        } else {
-            console.log("Join game failed");
-        }
-    });
-}
-
-function getServerUrl() {
-    return config.serverUrl + config.serverPort;
-}
-
-function quitGame() {
     $.ajax({
-        url: getServerUrl() + "/quitGame/" + config.playerId
-    });
+        url: config.serverUrl + "/joinGame/" + gameId,
+        success : function(data) {
+            if(data.playerID != 0 && data.gameID != 0) {           
+                window.location.href = server + "game?gameId=" + data.gameID + "&playerId=" + data.playerID + "&player=1"
+            } else {
+                toastr.error("Join game failed")
+            }
+        },
+        error : function (XMLHttpRequest, textStatus, errorThrown) {
+            toastr.error("Server unreachable")
+        }
+    })
 }
 
 function updateGame() {
     $.ajax({
-        url: getServerUrl() + "/getGame/" + config.playerId
-    }).then(function(data) {
-        parserJson(data);
-    });
+        url: config.serverUrl + "/getGame/" + config.playerId,
+        success : function(data) {
+            parserJson(data)
+        },
+        error : function (XMLHttpRequest, textStatus, errorThrown) {
+            toastr.error("Server unreachable")
+        }
+    })
 }
 
 function sendAction(position) {
-    var url = getServerUrl() + "/play/" + config.playerId + "/" + position;    
     $.ajax({
-        url: url
-    }).then(function(data) {
-        parserJson(data);
-    });
-
+        url: config.serverUrl + "/play/" + config.playerId + "/" + position,
+        success : function(data) {
+            parserJson(data)
+        },
+        error : function (XMLHttpRequest, textStatus, errorThrown) {
+            toastr.error("Server unreachable")
+        }
+    })
 }
 
-function resetGame() {
-    $.ajax({ 
-        url: getServerUrl() + "/resetGame/" + config.playerId
-    });
+function quitGame() {
+    $.ajax({
+        url: config.serverUrl + "/quitGame/" + config.playerId,
+        error : function (XMLHttpRequest, textStatus, errorThrown) {
+            toastr.error("Server unreachable")
+        }
+    })
+}
+
+function resetGame() {    
+    $.ajax({
+        url: config.serverUrl + "/resetGame/" + config.playerId,
+        error : function (XMLHttpRequest, textStatus, errorThrown) {
+            toastr.error("Server unreachable")
+        }
+    })
 }

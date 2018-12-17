@@ -1,13 +1,52 @@
+html {
+    height: 100%;
+}
+
 body {
-  font-family: 'Palatino', 'Garamond', serif;
+    height: 100%;
+}
+
+.title{
+    margin-bottom: 80px;
+}
+
+#stateMessage {
+    margin-bottom: 40px;
+}
+
+.btn {
+    background-color: white;
+}
+
+#linkDiv{
+    width: 30%;
+}
+
+.vertical-center {
+    width: 100%;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+#mainView {
+    height: 100%;
+    text-align: center;
+    background-color: rgb(72, 41, 178);
+    color: white;
+}
+
+#gameView {
+    height: 100%;
+    text-align: center;
+    background-color: rgb(72, 41, 178);
+    color: white;
 }
 
 h1 {
-  font-size: 2em;
-}
-
-.info {
-  text-align: center;
+    font-size: 4em;
 }
 
 .em-svg {
@@ -15,32 +54,6 @@ h1 {
     height: 70px !important;
 }
 
-.wrapper {
-    width: 100%;
-    margin: auto;
-}
-
-.info .red {
-  color: red;
-}
-
-.info .black {
-  color: black;
-}
-
-.play-again {
-  display: inline-block;
-  margin-bottom: 2em;
-  height: 40px;
-  line-height: 40px;
-  width: 50%;
-  background: mediumseagreen;
+a:link, a:visited, a:hover, a:active {
   color: white;
-  text-decoration: none;
-  font-family: helvetica;
-  opacity: 0.9;
-}
-
-.play-again:hover {
-  opacity: 1;
 }

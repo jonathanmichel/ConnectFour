@@ -1,21 +1,25 @@
 function loadBoard() {
-    $("#menu").remove();
-    var infDiv = $("#info");
+    var infDiv = $("#gameBoard");
     var content = "<table class='board' align='center' id='board'>"
     for(var i=0; i<6; i++){
         content += '<tr>';
         for(var j=0; j<7; j++) {
-            content += "<td><i class='em-svg em-black_large_square board_button'></i></td>"
+            content += "<td><i class='em-svg em-white_large_square board_button'></i></td>"
         }
         content += '</tr>';
     }
     content += "</table>"
     
     infDiv.append(content);
+    // Click listener
+    $('.board_button').click(function(e) {
+        var x_pos = $(this).closest('tr').find('td').index($(this).closest('td'))
+        sendAction(x_pos)
+    })
 }
 
 function clearBoard() {
-    $("#board").remove();
+    $("#gameBoard").remove();
 }
 
 function updateBoard() {
@@ -32,7 +36,7 @@ function updateBoard() {
                     item.addClass("em-bulb");
                     break;
                 case 'x':
-                    item.addClass("em-black_large_square");
+                    item.addClass("em-white_large_square");
                     break;
             }
         }

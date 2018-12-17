@@ -2,55 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Connect Four</title>
+  <title>Connect four</title>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link id="favicon" rel="icon" href="https://twemoji.maxcdn.com/2/72x72/1f604.png"/>
   
   <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="css/main.css">
-  <script src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
-  <script src="js/vars.js"></script>
-  <script src="js/functions.js"></script>
-  <script src="js/view.js"></script>
-  <script src="js/controller.js"></script>
-  <script src="js/clipboard.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/toastr.min.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
 </head>
 <body>
-  <section class="wrappers">
-    <input type="hidden" value="" id="gameId">
-    <div class="header">
-        <div style="text-align: center;">
-            <h3><span id="player"></span></h3>
-        </div>
-        <div style="text-align: center;">
-            <h2 class="message"><span id="state"></span></h2>
-        </div>
-    </div>
-  </section>
-  <section class="wrapper">
-    <div class="info" id="info">
-      <h1 class="title">Connect four!</h1>
-      
-      <a href="#" class="play-again" style="display: none;">Play Again</a>
-    </div>
-    <div id="menu">
-        <div style="text-align: center;">
-            <a href="#" onclick='newGame()'><h2>Start new game</h2></a>
-        </div>
-        
-        <div style="text-align: center;">
-            <h3>OR</h3>
-        </div>
-        
-        <div style="text-align: center;">
-            <a href="#" onclick='joinGame()'><h2>Join game</h2></a>
+    <div id="mainView">
+        <div class="vertical-center">
+            <h1 class="title">Connect four !</h1>      
+            <button type="button" id="newGame" class="btn btn-light">New game</button>
         </div>
     </div>
     
-    </table>
-  </section>
+    <div id="gameView" style="display: none;">
+        <div class="vertical-center">
+            <h1 class="title"><a href="game" id="titleLink" class="disabled">Connect four !</a></h1>
+            <div><h2 id="stateMessage">...</h2></div>            
+            <div id="gameBoard"></div>
+            <div id="linkDiv">
+                <div class="input-group">
+                    <input type="text" class="form-control" aria-describedby="basic-addon2" id="inviteLinkInput" value="defaultInviteLink">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="inviteLinkBtn" data-clipboard-target='#inviteLinkInput'>Invite</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="js/vars.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/view.js"></script>
+    <script src="js/controller.js"></script>
+    <script src="js/clipboard.min.js"></script>
+    <script src="js/toastr.min.js"></script>
+    <script src="js/favico-0.3.10.min.js"></script>
 </body>
 </html>

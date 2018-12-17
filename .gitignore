@@ -1,6 +1,4 @@
 
 server/flask\.log
 
-server/__pycache__/fourInARow\.cpython-36\.pyc
-
-server/__pycache__/fourInARow\.cpython-35\.pyc
+server/__pycache__/*
