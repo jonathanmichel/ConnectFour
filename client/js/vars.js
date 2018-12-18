@@ -3,7 +3,7 @@ var config = {
     gameId: 0,
     player: 1,
     clientGameUrl : window.location.href.replace(window.location.search, ""),
-    serverUrl : "https://connectfour.serveo.net" //http://tcp.eu.ngrok.io: http://localhost:
+    serverUrl : "https://connectfour.serveo.net" 
 }
 
 var board = [['x','x','x','x','x','x','x'],

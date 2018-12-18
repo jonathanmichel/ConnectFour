@@ -1,4 +1,5 @@
 server/flask\.log
 server/__pycache__/*
+server/gamePickleFile
 
 client/.idea/*

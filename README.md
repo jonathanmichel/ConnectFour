@@ -5,7 +5,30 @@ A little project made to pass time. A connect four game with a Web interface bas
 All the logic of the game is taken care by a little RESTFULL server in Python (Server Folder). 
 
 ## Client 
+Web application communicating with the game server. Made with [jQuery](https://jquery.com/)  beause Javascript is cool, but jQuery is cooler (but not cold). Designed with [Bootsrap](https://getbootstrap.com/)  because la flemme de faire du CSS and emojis support with [
+Emoji CSS](https://afeld.github.io/emoji-css/). Toast notifications with [
+toastr](https://codeseven.github.io/toastr/) and favicon notifications with [favico.js](http://lab.ejci.net/favico.js/). Copy to clipboard handled with [clipboard.js](https://clipboardjs.com/). 
 
+Theorically responsive, excepted for people using their phone in [landscape](https://bit.ly/IqT6zt).
+
+Client constantly sends AJAX requests to  game server and displays current game board and status messages. 
+
+Use [XAMPP](https://www.apachefriends.org/fr/index.html) for local debug with an Apache server and full support of URL rewriting. Demonstration available on https://techiteasy.ch/game. 
+
+### Launch client
+Open *[game.html](https://github.com/jonathanmichel/ConnectFour/blob/master/client/game.html)* in your favorite [browser](https://www.google.com/intl/fr_ALL/chrome/) or *http://localhost/[connectFourDirectory]/client/game* when using XAMPP. You can then start a new game.
+
+**Invitation URL**
+
+    /game.html?gameId=<gameId>
+This link has to be sent to a friend to play with him. The web application provides a button to copy this url to the clipboard.
+
+**Game url**
+
+When a party is created/joined, user is automatically redirected to this url. This one allows user to reload game all he wants (and cheat but chut it must be changed, lot of 'ch' don't you think ? ).
+
+	 /game.html?gameId=<gameId>&playerId=<playerId>&player=<0|1>
+	 
 ## Server
 ### Launch the server and link with ngrok or serveo
 

@@ -66,7 +66,7 @@ function parserJson(data) {
         toastr.error(data.ERROR)
         return
     }
-    console.log(data)
+
     data.grid = String(data.grid.replace(new RegExp("\n", 'g'),""))
     for (var x = 0; x < 7; x++) {
         for (var y = 0; y < 6; y++) {
