@@ -175,7 +175,7 @@ class Game():
     def getIdJoin(self):   
         listDic = {}
         if self.__player1ID == "":        
-            self.__player1ID = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+            self.__player1ID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
             listDic['gameID'] = self.__gameID
             listDic['playerID'] = str(self.__player1ID)
         else:

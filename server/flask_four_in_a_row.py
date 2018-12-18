@@ -5,6 +5,7 @@ import sys
 import time
 import os
 import random
+import pickle
 
 file_path = os.path.dirname(__file__)
 sys.path.insert(0, file_path)
@@ -14,16 +15,39 @@ from fourInARow import *
 
 app = Flask(__name__)
 
+gamePickleFileName = "gamePickleFile"
+
 timeCheck = 60*5
 timeSleep = 4
 
 game = Game(0)
 gameArray = []
 
+if os.path.isfile(gamePickleFileName) == True:
+	try:
+		gameArray = pickle.load(open(gamePickleFileName, 'rb'))
+		if isinstance(gameArray, list):
+			if len(gameArray)>0:
+				if not isinstance(gameArray[0], Game):
+					print("Picke File doesn't contain a list of Game")
+					gameArray = []
+				else:					
+					print("Picke File successfully loaded")
+			else:					
+				print("Picke File successfully loaded")
+		else:
+			print("Picke File doesn't contain a list")
+			gameArray = []
+	except:
+		print("Pickle File couldn't be loaded")
+else:
+	print("Pickle File doesn't exist")
+
 @app.route('/createGame', strict_slashes=False)
 def createGame():
     newGame = Game(random.randint(0,1))
     gameArray.append(newGame)
+    pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
     
     tmp = newGame.getIdNew()     
     tmp.headers['Access-Control-Allow-Origin'] = '*'
@@ -48,7 +72,6 @@ def joinGame(gameID):
     
 @app.route('/quitGame/<string:playerID>', strict_slashes=False)
 def quitGame(playerID):
-    print(len(gameArray))
     for game in gameArray:
         if game.isPlayer(playerID) == True:                     
             game.playerQuit()
@@ -57,7 +80,7 @@ def quitGame(playerID):
                 gameArray.remove(game)
                 break
             break
-    print(len(gameArray))
+    pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
     return "0"
 
 @app.route('/game/<int:row>', strict_slashes=False)
@@ -133,6 +156,7 @@ def gameTimeCheck():
                 gameArray.remove(game)
                 break
         print("Player after gameTimeCheck: "+str(len(gameArray)))
+        pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
         time.sleep(timeSleep)
 
 from logging import FileHandler, Formatter, DEBUG
