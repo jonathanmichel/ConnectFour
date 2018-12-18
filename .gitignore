@@ -1,4 +1,4 @@
-
 server/flask\.log
-
 server/__pycache__/*
+
+client/.idea/*

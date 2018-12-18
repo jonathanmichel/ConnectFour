@@ -32,7 +32,7 @@ function loadGame(gameId, playerId, player) {
     $('#gameView').show()
     
     if(player == 0) {
-        $("#inviteLinkInput").val(server + "game?gameId=" + config.gameId)
+        $("#inviteLinkInput").val(config.clientGameUrl + "?gameId=" + config.gameId)
         $("#inviteLinkBtn").click(function(event){
             toastr.info("Link copied to clipboard")
         })
@@ -111,7 +111,7 @@ function createGame() {
         url: config.serverUrl + "/createGame",
         success : function(data) {
             if(data.playerID != 0 && data.gameID != 0) {            
-                window.location.href = server + "game?gameId=" + data.gameID + "&playerId=" + data.playerID + "&player=0"
+                window.location.href = config.clientGameUrl + "?gameId=" + data.gameID + "&playerId=" + data.playerID + "&player=0"
             } else {
                 toastr.error("Game creation failed")
             }
@@ -130,7 +130,7 @@ function joinGameId(gameId) {
         url: config.serverUrl + "/joinGame/" + gameId,
         success : function(data) {
             if(data.playerID != 0 && data.gameID != 0) {           
-                window.location.href = server + "game?gameId=" + data.gameID + "&playerId=" + data.playerID + "&player=1"
+                window.location.href = config.clientGameUrl + "?gameId=" + data.gameID + "&playerId=" + data.playerID + "&player=1"
             } else {
                 toastr.error("Join game failed")
             }

@@ -6,29 +6,18 @@ body {
     height: 100%;
 }
 
-.title{
-    margin-bottom: 80px;
-}
-
 #stateMessage {
     margin-bottom: 40px;
 }
 
-.btn {
-    background-color: white;
+.title{
+    font-size: 4em;
+    margin-bottom: 80px;
 }
 
-#linkDiv{
-    width: 30%;
-}
-
-.vertical-center {
-    width: 100%;
-    margin: 0;
-    position: absolute;
-    top: 50%;
-    -ms-transform: translateY(-50%);
-    transform: translateY(-50%);
+#linkDivGroupe{
+    margin-top: 20px;
+    width: 40%;
 }
 
 #mainView {
@@ -45,15 +34,55 @@ body {
     color: white;
 }
 
-h1 {
-    font-size: 4em;
+.em-svg {
+    width: 70px;
+    height: 70px;
 }
 
-.em-svg {
-    width: 70px !important;
-    height: 70px !important;
+.vertical-center {
+    width: 100%;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
 }
 
 a:link, a:visited, a:hover, a:active {
   color: white;
+}
+
+.btn {
+    background-color: white;
+}
+
+@media only screen and (max-height: 650px) {
+    .em-svg {
+        width: 10vh;
+        height: 10vh;
+    }
+    #linkDivGroupe {
+        width: 50vw;
+    }
+    .title{
+        margin-bottom: 5px;
+        font-size: 2em;
+    }
+    #stateMessage {
+        margin-bottom: 5px;
+        font-size: 1em;
+    }
+}
+
+@media only screen and (max-width: 505px) {
+    .em-svg {
+        width: 12vw;
+        height: 12vw;
+    }
+    #linkDivGroupe {
+        width: 100vw;
+    }
+    h1 {
+        font-size: 3em;
+    }
 }
