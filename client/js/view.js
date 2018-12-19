@@ -41,7 +41,7 @@ function clearBoard() {
     $("#gameBoard").remove();
 }
 
-function updateBoard(emoji0, emoji1) {
+function drawBoard(emoji0, emoji1, emojiWin) {
     for (var y = 0; y <= 5; y++) {
         for (var x = 0; x <= 6; x++) {
             var cell = $("tr:eq(" + y + ")").find('td').eq(x);
@@ -53,6 +53,10 @@ function updateBoard(emoji0, emoji1) {
                     break;
                 case '1':
                     item.addClass(emoji1);
+                    break;
+                case '2':
+                    item.addClass(emojiWin);
+                    item.addClass("board_highlight");
                     break;
                 case 'x':
                     item.addClass("em-white_large_square");

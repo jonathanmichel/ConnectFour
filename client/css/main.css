@@ -4,6 +4,7 @@ html {
 
 body {
     height: 100%;
+    background-image: linear-gradient(rgb(72, 41, 178), rgb(91, 63, 186));
 }
 
 #stateMessage {
@@ -23,14 +24,12 @@ body {
 #mainView {
     height: 100%;
     text-align: center;
-    background-color: rgb(72, 41, 178);
     color: white;
 }
 
 #gameView {
     height: 100%;
     text-align: center;
-    background-color: rgb(72, 41, 178);
     color: white;
 }
 
@@ -52,6 +51,7 @@ body {
     top: 50%;
     transform: translate(-50%, -50%);
     background-color : rgb(210, 210, 210);
+    background-image: linear-gradient(rgb(180, 180, 180), rgb(240, 240, 240));
     border-radius: 10px;
     padding: 10px;
 }
@@ -75,6 +75,13 @@ body {
 .board_button {
     width: 70px;
     height: 70px;
+    margin: 2px;
+}
+
+.board_highlight {
+    border: 4px solid rgb(50, 27, 115);
+    margin: 0px;
+    border-radius: 10px;
 }
 
 .vertical-center {

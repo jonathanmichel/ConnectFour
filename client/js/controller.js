@@ -25,8 +25,8 @@ $(document).ready(function() {
 })
 
 function loadGame(gameId, playerId) {
-    config.playerId = playerId;
-    config.gameId = gameId;
+    config.playerId = playerId.replace("#", "");
+    config.gameId = gameId.replace("#", "");
 
     $("#mainView").remove();
     $('#gameView').show();
@@ -59,11 +59,15 @@ function abortTimer() {
 
 function parserJson(data) {
     if('ERROR' in data) {
-        toastr.error(data.ERROR);
+        if (data.ERROR === "NOT YOUR TURN") {
+            toastr.error("Please wait, it seems it's not your turn. Thank you :)")
+        } else {
+            toastr.error(data.ERROR);
+        }
         return;
     }
 
-    config.player = data.id;
+        config.player = data.id;
 
     data.grid = String(data.grid.replace(new RegExp("\n", 'g'),""));
     for (var x = 0; x < 7; x++) {
@@ -72,51 +76,45 @@ function parserJson(data) {
             }
     }
 
-    var stateMessage = "..."
-    if(data.isWin == "-1") {            // During party
+    var stateMessage = "...";
 
+    // Opponent state
+    if(data["player" + (1-data.id) + "Status"]) {
+        stateMessage = "Opponent is playing";
+        $("#linkDiv").hide()
+    } else {
+        stateMessage = "Opponent is not connected";
+        $("#linkDiv").show()
+    }
+
+    if(data.isWin === "-1") {            // During party
         // Player changes
         var currentPlayer = data.currentPlayer;
-        if(lastPlayer != currentPlayer) {
-            favicon.badge(currentPlayer == config.player ? "!" : "")
+        if(lastPlayer !== currentPlayer) {
+            favicon.badge(currentPlayer === config.player ? "!" : "")
         }
         lastPlayer = currentPlayer;
 
-        // Opponent state
-        var opponentStatus;
-        if(config.player == "0")
-            opponentStatus = data.player1Status;
-        else
-            opponentStatus = data.player0Status;
-
-        if(opponentStatus) {
-            stateMessage = "Opponent is playing";
-            $("#linkDiv").hide()
-        } else {
-            stateMessage = "Opponent is not connected";
-            $("#linkDiv").show()
-        }
-
         // Player hat to play
-        if(currentPlayer == config.player) {
+        if(currentPlayer === config.player) {
             stateMessage = "Your turn";
             document.title = "Connect four - Your turn";
         } else {
             document.title = "Connect four";
         }
-
     } else {                            // End of party
         var restartGame = "<a onclick='resetGame()' href='#'>Restart game</a>";
-        stateMessage = (data.isWin == config.player ? "You" : "Opponent") + " won - ";
-
+        var winnerTxt = (data.isWin === config.player ? "You" : "Opponent") + " won";
+        stateMessage = winnerTxt + " - ";
+        document.title = "Connect four - " + winnerTxt;
     }
 
     var stateMessageDiv = $('#stateMessage');
     stateMessageDiv.text(stateMessage);
     stateMessageDiv.append(restartGame);
 
-    updateBoard(data.player0Emoji, data.player1Emoji);
-    setEmojiSelectorButton(config.player == "0" ? data.player0Emoji : data.player1Emoji);
+    drawBoard(data.player0Emoji, data.player1Emoji, data["player" + data.isWin + "Emoji"]);
+    setEmojiSelectorButton(data["player" + data.id + "Emoji"]);
 }
 
 function loadEmojis() {
@@ -182,7 +180,7 @@ function joinGameId(gameId) {
     $.ajax({
         url: config.serverUrl + "/joinGame/" + gameId,
         success : function(data) {
-            if(data.playerID != 0 && data.gameID != 0) {           
+            if(data.playerID && data.gameID) {
                 window.location.href = config.clientGameUrl + "?gameId=" + data.gameID + "&playerId=" + data.playerID
             } else {
                 toastr.error("Join game failed")
