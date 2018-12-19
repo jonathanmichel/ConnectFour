@@ -132,6 +132,25 @@ def resetGame(playerID):
     tmp = jsonify(listDic)    
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp  
+
+@app.route('/setEmoji/<string:playerID>/<string:emojiCssRef>', strict_slashes=False)
+def setEmoji(playerID, emojiCssRef):
+    for game in gameArray:
+        if game.isPlayer(playerID) == True:
+            game.setPlayerEmoji(playerID, emojiCssRef)
+            listDic = {}     
+            listDic['SUCCESS'] = "EMOJI SET"
+            
+            tmp = jsonify(listDic)    
+            tmp.headers['Access-Control-Allow-Origin'] = '*'
+            return tmp
+    
+    listDic = {}     
+    listDic['ERROR'] = "Player has no Game Assigned"
+    
+    tmp = jsonify(listDic)    
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
     
 def addHeader(text):
     resp = Response(text)    

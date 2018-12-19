@@ -7,11 +7,15 @@ import _thread as thread
 import time
 
 class Token(Enum):
-    EMPTY = 0
-    PLAYER0 = 1
-    PLAYER1 = 2
+    PLAYER0 = 0
+    PLAYER1 = 1
+    WIN = 3
+    EMPTY = -1
     
 width, height = 6, 7
+DELAY_PLAYER_DEAD = 10
+
+emCssSampleList = ["em-mahjong","em-candy","em-butterfly","em-sparkles","em-aquarius","em-popcorn","em-recycle","em-symbols","em-telephone_receiver","em-bicyclist","em-dizzy_face","em-airplane","em-bulb","em-burrito"]
 
 class Game():
 
@@ -25,11 +29,29 @@ class Game():
         self.__numberQuit = 0
         self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)] 
         self.__timeP0 = time.time()
-        self.__timeP1 = time.time()
+        self.__timeP1 = 0
+        self.__tokenWhoWin = Token.EMPTY
+        
+        index1 = random.randrange(0,14)
+        index2 = random.randrange(0,14)
+        while index1 == index2:
+            index2 = random.randrange(0,14)
+        
+        self.__emojiP0 = emCssSampleList[index1]
+        self.__emojiP1 = emCssSampleList[index2]
+        
+    def getPlayerID(self, index):
+        if index == 0:
+            return self.__player0ID
+        elif index == 1:
+            return self.__player1ID
+        else:
+            return "NO PLAYER"
         
     def reset(self):
         self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)] 
         self.__player = random.randint(0,1)
+        self.__tokenWhoWin = Token.EMPTY
         
     def playerQuit(self):
         self.__numberQuit = self.__numberQuit + 1
@@ -62,15 +84,17 @@ class Game():
 
     def setPlayToken(self, player, line):  
         listDic = {}    
-        print(player)
-        print(self.__player0ID)
+        
+        if self.isWin() != -1:
+            listDic["ERROR"] = "SOMEBODY WON DAMMIT, STOP PLAYING"
+            return jsonify(listDic)
         if self.__player == 0 and player != self.__player0ID:
             listDic["ERROR"] = "NOT YOUR TURN"
             return jsonify(listDic)
         if self.__player == 1 and player != self.__player1ID:
             listDic["ERROR"] = "NOT YOUR TURN"
             return jsonify(listDic)
-        
+               
         if self.__player == 0:
             token = Token.PLAYER0
         else:
@@ -87,47 +111,93 @@ class Game():
                         self.__player = 1
                     else:
                         self.__player = 0
-                   
+                    if player == self.__player0ID:
+                        listDic['id'] = '0'
+                    else:                    
+                        listDic['id'] = '1'
                     listDic['grid'] = self.text()
-                    listDic['player'] = str(self.__player)
+                    listDic['currentPlayer'] = str(self.__player)
                     listDic['isWin'] = str(self.isWin())
-                    listDic['player0Status'] = str(not self.__player0Quit)
-                    listDic['player1Status'] = str(not self.__player1Quit)
+                    listDic['player0Status'] = (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
+                    listDic['player1Status'] = (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
+                    listDic['player0Emoji'] = self.__emojiP0
+                    listDic['player1Emoji'] = self.__emojiP1
                     return jsonify(listDic)
                     
+            if player == self.__player0ID:
+                listDic['id'] = '0'
+            else:                    
+                listDic['id'] = '1'
             listDic['grid'] = self.text()
-            listDic['player'] = str(self.__player)
+            listDic['currentPlayer'] = str(self.__player)
             listDic['isWin'] = str(self.isWin())
-            listDic['player0Status'] = str(not self.__player0Quit)
-            listDic['player1Status'] = str(not self.__player1Quit)
+            listDic['player0Status'] = (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
+            listDic['player1Status'] = (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
+            listDic['player0Emoji'] = self.__emojiP0
+            listDic['player1Emoji'] = self.__emojiP1
             return jsonify(listDic)
             
             
     def isWin(self): 
+        isDraw = True
+        for row in self.__grid:
+            for gridToken in row:
+                if gridToken == Token.EMPTY:
+                    isDraw = False
+        if isDraw == True:
+            return 2
+            
+        if self.__tokenWhoWin != Token.EMPTY:
+            return self.__tokenWhoWin.value
+                    
         for row in range(0,7):
             for col in range(0,7):
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row+1][col] and self.__grid[row][col] == self.__grid[row+2][col] and self.__grid[row][col] == self.__grid[row+3][col]:
-                           return self.__grid[row][col]
+                           toReturn = self.__grid[row][col].value
+                           self.__grid[row][col] = Token.WIN 
+                           self.__grid[row+1][col] = Token.WIN 
+                           self.__grid[row+2][col] = Token.WIN 
+                           self.__grid[row+3][col] = Token.WIN 
+                           self.__tokenWhoWin = self.__grid[row][col]
+                           return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row][col+1] and self.__grid[row][col] == self.__grid[row][col+2] and self.__grid[row][col] == self.__grid[row][col+3]:
-                           return self.__grid[row][col]
+                           toReturn = self.__grid[row][col].value
+                           self.__grid[row][col] = Token.WIN
+                           self.__grid[row][col+1] = Token.WIN 
+                           self.__grid[row][col+2] = Token.WIN 
+                           self.__grid[row][col+3] = Token.WIN
+                           self.__tokenWhoWin = self.__grid[row][col]
+                           return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row+1][col+1] and self.__grid[row][col] == self.__grid[row+2][col+2] and self.__grid[row][col] == self.__grid[row+3][col+3]:
-                           return self.__grid[row][col]
+                           toReturn = self.__grid[row][col].value
+                           self.__grid[row][col] = Token.WIN
+                           self.__grid[row+1][col+1] = Token.WIN
+                           self.__grid[row+2][col+2] = Token.WIN
+                           self.__grid[row+3][col+3] = Token.WIN
+                           self.__tokenWhoWin = self.__grid[row][col]
+                           return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row-1][col+1] and self.__grid[row][col] == self.__grid[row-2][col+2] and self.__grid[row][col] == self.__grid[row-3][col+3]:
-                           return self.__grid[row][col]
+                           toReturn = self.__grid[row][col].value
+                           self.__grid[row][col] = Token.WIN
+                           self.__grid[row-1][col+1] = Token.WIN
+                           self.__grid[row-2][col+2] = Token.WIN
+                           self.__grid[row-3][col+3] = Token.WIN
+                           self.__tokenWhoWin = self.__grid[row][col]
+                           return toReturn
                 except:
                     tmp = 1
                 
-        return 0
+        return -1
             
     def emojiText(self):
         txt = '<table style="width:100%">'
@@ -156,11 +226,17 @@ class Game():
             self.__timeP1 = time.time()
         
         listDic = {}
+        if playerID == self.__player0ID:
+            listDic['id'] = '0'
+        else:                    
+            listDic['id'] = '1'
         listDic['grid'] = self.text()
-        listDic['player'] = str(self.__player)
+        listDic['currentPlayer'] = str(self.__player)
         listDic['isWin'] = str(self.isWin())
-        listDic['player0Status'] = str(not self.__player0Quit)
-        listDic['player1Status'] = str(not self.__player1Quit)
+        listDic['player0Status'] = (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
+        listDic['player1Status'] = (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
+        listDic['player0Emoji'] = self.__emojiP0
+        listDic['player1Emoji'] = self.__emojiP1
     
         return jsonify(listDic)
         
@@ -206,18 +282,37 @@ class Game():
     def setPlayer1Quit(self, value):
         self.__player1Quit = value
         
+    def setPlayerEmoji(self, playerID, value):
+        if playerID == self.__player0ID:
+            self.setPlayer0Emoji(value)
+            print("emoji 0")
+        elif playerID == self.__player1ID:
+            self.setPlayer1Emoji(value)
+            print("emoji 1")
+        else:
+            print("emoji null")
+        
+    def setPlayer0Emoji(self, value):
+        self.__emojiP0 = value
+        
+    def setPlayer1Emoji(self, value):
+        self.__emojiP1 = value
+        
     def getPlayersQuit(self):
         return self.__player0Quit and self.__player1Quit
     
     def text(self):
         self.__time = time.time()
         txt = ""
+        #self.__grid = [[Token(random.randrange(-1,2)) for x in range(width)] for y in range(height)] 
         for w in range(0,width):
             for h in range(0,height):
                 if self.__grid[h][width-1-w] == Token.PLAYER0:
-                    txt = txt+"1"
-                elif self.__grid[h][width-1-w] == Token.PLAYER1:
                     txt = txt+"0"
+                elif self.__grid[h][width-1-w] == Token.PLAYER1:
+                    txt = txt+"1"
+                elif self.__grid[h][width-1-w] == Token.WIN:
+                    txt = txt+"2"
                 elif self.__grid[h][width-1-w] == Token.EMPTY:
                     txt = txt+"x"
             
