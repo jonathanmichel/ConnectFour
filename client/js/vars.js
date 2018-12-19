@@ -1,9 +1,8 @@
 var config = {
-    playerId: 0,
-    gameId: 0,
-    player: 1,
-    clientGameUrl : window.location.href.replace(window.location.search, ""),
-    serverUrl : "https://connectfour.serveo.net" 
+    playerId: "",
+    gameId: "",
+    clientGameUrl : window.location.href.replace(window.location.search, "").replace("#", ""),
+    serverUrl : "https://connectfour.serveo.net"
 }
 
 var board = [['x','x','x','x','x','x','x'],

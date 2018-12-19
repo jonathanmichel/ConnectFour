@@ -34,7 +34,45 @@ body {
     color: white;
 }
 
-.em-svg {
+.emojiSelectorDiv {
+    display: none;
+    position: fixed;
+    top : 0;
+    right: 0;
+    border : 1px solid black;
+    width: 100%;
+    height: 100%;
+
+}
+
+.emojiSelectorMenu{
+    position: relative;
+    width: 50%;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color : rgb(210, 210, 210);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.emojiSelectorButtonDiv{
+    position: fixed;
+    bottom: 2px;
+    right: 2px;
+}
+
+.emojiSelectorButton{
+    width: 70px;
+    height: 70px;
+}
+
+.emojiSelectorItem {
+    width: 70px;
+    height: 70px;
+}
+
+.board_button {
     width: 70px;
     height: 70px;
 }
@@ -57,32 +95,45 @@ a:link, a:visited, a:hover, a:active {
 }
 
 @media only screen and (max-height: 650px) {
-    .em-svg {
-        width: 10vh;
-        height: 10vh;
-    }
-    #linkDivGroupe {
-        width: 50vw;
-    }
     .title{
         margin-bottom: 5px;
         font-size: 2em;
     }
+
+    #linkDivGroupe {
+        width: 65vw;
+    }
+
     #stateMessage {
         margin-bottom: 5px;
         font-size: 1em;
     }
+
+    .board_button, .emojiSelectorButton, .emojiSelectorItem {
+        width: 10vh;
+        height: 10vh;
+    }
+
+    .emojiSelectorMenu {
+        width: 60vw;
+    }
 }
 
-@media only screen and (max-width: 505px) {
-    .em-svg {
-        width: 12vw;
-        height: 12vw;
+@media only screen and (max-width: 600px) {
+    .title {
+        font-size: 3em;
     }
+
     #linkDivGroupe {
         width: 100vw;
     }
-    h1 {
-        font-size: 3em;
+
+    .board_button, .emojiSelectorButton, .emojiSelectorItem {
+        width: 12vw;
+        height: 12vw;
+    }
+
+    .emojiSelectorMenu {
+        width: 80%;
     }
 }

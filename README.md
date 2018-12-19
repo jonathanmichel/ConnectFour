@@ -1,3 +1,4 @@
+
 # ConnectFour, an Embedeed Hardware alternative
 
 ## Description
@@ -25,9 +26,9 @@ This link has to be sent to a friend to play with him. The web application provi
 
 **Game url**
 
-When a party is created/joined, user is automatically redirected to this url. This one allows user to reload game all he wants (and cheat but chut it must be changed, lot of 'ch' don't you think ? ).
+When a party is created/joined, user is automatically redirected to this url. This one allows user to reload game all he wants.
 
-	 /game.html?gameId=<gameId>&playerId=<playerId>&player=<0|1>
+	 /game.html?gameId=<gameId>&playerId=<playerId>
 	 
 ## Server
 ### Launch the server and link with ngrok or serveo

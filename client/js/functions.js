@@ -1,6 +1,8 @@
 var getUrlParameter = function getUrlParameter(sParam) {
-    var sPageURL = window.location.search.substring(1),
-        sURLVariables = sPageURL.split('&'),
+    var sPageURL = window.location.href.split('?')[1];
+    if(!sPageURL)
+        return undefined;
+    var    sURLVariables = sPageURL.split('&'),
         sParameterName,
         i;
 
@@ -12,3 +14,9 @@ var getUrlParameter = function getUrlParameter(sParam) {
         }
     }
 }
+
+var uniqueArray = function(arrArg) {
+    return arrArg.filter(function(elem, pos,arr) {
+        return arr.indexOf(elem) == pos;
+    });
+};

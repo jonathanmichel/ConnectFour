@@ -12,17 +12,36 @@ function loadBoard() {
     
     infDiv.append(content);
     // Click listener
-    $('.board_button').click(function(e) {
+    $(".board_button").click(function(e) {
         var x_pos = $(this).closest('tr').find('td').index($(this).closest('td'))
         sendAction(x_pos)
     })
+}
+
+function setEmojiSelectorButton(emoji) {
+    var button = $(".emojiSelectorButton")
+    button.removeClass();
+    button.attr('class', 'em-svg emojiSelectorButton ' + emoji)
+}
+
+function emojiSelectorShow() {
+    $(".emojiSelectorDiv").show();
+    $(".emojiSelectorItem").click(function(e) {
+        var emoji = $(this).closest('i').attr('class').split(" ")[2];
+        changeEmoji(emoji);
+        emojiSelectorHide();
+    })
+}
+
+function emojiSelectorHide() {
+    $(".emojiSelectorDiv").hide();
 }
 
 function clearBoard() {
     $("#gameBoard").remove();
 }
 
-function updateBoard() {
+function updateBoard(emoji0, emoji1) {
     for (var y = 0; y <= 5; y++) {
         for (var x = 0; x <= 6; x++) {
             var cell = $("tr:eq(" + y + ")").find('td').eq(x);
@@ -30,10 +49,10 @@ function updateBoard() {
             item.attr("class", "em-svg board_button");
             switch(board[y][x]) {
                 case '0':
-                    item.addClass("em-airplane");
+                    item.addClass(emoji0);
                     break;
                 case '1':
-                    item.addClass("em-bulb");
+                    item.addClass(emoji1);
                     break;
                 case 'x':
                     item.addClass("em-white_large_square");
