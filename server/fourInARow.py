@@ -148,6 +148,7 @@ class Game():
             return 2
             
         if self.__tokenWhoWin != Token.EMPTY:
+        
             return self.__tokenWhoWin.value
                     
         for row in range(0,7):
@@ -155,44 +156,45 @@ class Game():
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row+1][col] and self.__grid[row][col] == self.__grid[row+2][col] and self.__grid[row][col] == self.__grid[row+3][col]:
                            toReturn = self.__grid[row][col].value
+                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN 
                            self.__grid[row+1][col] = Token.WIN 
                            self.__grid[row+2][col] = Token.WIN 
                            self.__grid[row+3][col] = Token.WIN 
-                           self.__tokenWhoWin = self.__grid[row][col]
+                           self.__tokenWhoWin = toReturn
                            return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row][col+1] and self.__grid[row][col] == self.__grid[row][col+2] and self.__grid[row][col] == self.__grid[row][col+3]:
                            toReturn = self.__grid[row][col].value
+                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN
                            self.__grid[row][col+1] = Token.WIN 
                            self.__grid[row][col+2] = Token.WIN 
                            self.__grid[row][col+3] = Token.WIN
-                           self.__tokenWhoWin = self.__grid[row][col]
                            return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row+1][col+1] and self.__grid[row][col] == self.__grid[row+2][col+2] and self.__grid[row][col] == self.__grid[row+3][col+3]:
                            toReturn = self.__grid[row][col].value
+                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN
                            self.__grid[row+1][col+1] = Token.WIN
                            self.__grid[row+2][col+2] = Token.WIN
                            self.__grid[row+3][col+3] = Token.WIN
-                           self.__tokenWhoWin = self.__grid[row][col]
                            return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row-1][col+1] and self.__grid[row][col] == self.__grid[row-2][col+2] and self.__grid[row][col] == self.__grid[row-3][col+3]:
                            toReturn = self.__grid[row][col].value
+                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN
                            self.__grid[row-1][col+1] = Token.WIN
                            self.__grid[row-2][col+2] = Token.WIN
                            self.__grid[row-3][col+3] = Token.WIN
-                           self.__tokenWhoWin = self.__grid[row][col]
                            return toReturn
                 except:
                     tmp = 1
