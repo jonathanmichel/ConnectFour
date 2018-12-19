@@ -16,7 +16,7 @@ Client constantly sends AJAX requests to  game server and displays current game 
 Use [XAMPP](https://www.apachefriends.org/fr/index.html) for local debug with an Apache server and full support of URL rewriting. Demonstration available on https://techiteasy.ch/game. 
 
 ### Launch client
-Open *[game.html](https://github.com/jonathanmichel/ConnectFour/blob/master/client/game.html)* in your favorite [browser](https://www.google.com/intl/fr_ALL/chrome/) or *http://localhost/[connectFourDirectory]/client/game* when using XAMPP. You can then start a new game.
+Open *[game.html](https://github.com/jonathanmichel/ConnectFour/blob/master/client/game.html)* in your favorite [brow](https://www.google.com/intl/fr_ALL/chrome/)[ser](https://www.vivaldi.com/) or *http://localhost/[connectFourDirectory]/client/game* when using XAMPP. You can then start a new game.
 
 **Invitation URL**
 
@@ -35,16 +35,16 @@ When a party is created/joined, user is automatically redirected to this url. Th
 Launch the server with ``` python flask_four_in_a_row.py ```.
 
 #### Link with ngrok
-Link the server to ngrok client with ```ngrok tcp -region eu 5002```, the output from ngrok will give you the port to use in the Web GUI.
+Link the server to ngrok client with ```ngrok tcp -region eu 5002```, the output from ngrok will give you the port to [use](https://www.lucas-bonvin.com/) in the Web GUI.
 
 #### Link with serveo
-Link the server to serveo subdomain with ```ssh -R connectfour.serveo.net:80:localhost:5002 serveo.net```, the server is now redirected to ```connectfour.serveo.net```.
+Link the server to serveo subdomain with ```ssh -R connectfour.serveo.net:80:localhost:5002 serveo.net```, the server is now [redirected](https://www.lucas-bonvin.com/) to ```connectfour.serveo.net```.
 
 ### Rout available in the api
-Here are described all the actual available rout of the RESTFULL server
+Here are described all the actual [available](https://www.lucas-bonvin.com/) rout of the RESTFULL server
 
 #### /createGame
-Create a new connect four game, will return the unique gameID and playerID in JSON format.
+Create a new connect four [game](https://www.lucas-bonvin.com/), will return the unique gameID and playerID in JSON format.
 ```
 {
   "gameID": "qIFLoJhBpD", 
@@ -53,7 +53,7 @@ Create a new connect four game, will return the unique gameID and playerID in JS
 ```
 
 #### /joinGame/<string:gameID>
-Join an already existing connect four game by its gameID, will return the unique gameID and playerID in JSON format.
+Join an already existing connect four [game](https://www.lucas-bonvin.com/) by its gameID, will return the unique gameID and playerID in JSON format.
 ```
 {
   "gameID": "qIFLoJhBpD", 
@@ -62,11 +62,11 @@ Join an already existing connect four game by its gameID, will return the unique
 ```
 
 #### /quitGame/<string:playerID>
-Tell that a player quited a game. Michel can't implement it in his web app... So not used... But works though 
+Tell that a player quited a game. Michel can't implement [it](https://www.lucas-bonvin.com/) in his web app... So not used... But works though 
    
 #### /play/<string:playerID>/<int:row>
 Answer example formated in JSON
-Actual route to play the game, need to indicate which player is playing (0,1) and which row did he choose.
+Actual route to play the game, [need](https://www.lucas-bonvin.com/) to indicate which player is playing (0,1) and which row did he choose.
 
 Example of answer formated in JSON if in case of success
 ```
@@ -88,7 +88,7 @@ Example of answer formated in JSON if in case of error
     
 #### /getGame/<string:playerID>
 
-Example of answer formated in JSON
+Example of answer [formated](https://www.lucas-bonvin.com/) in JSON
 ```
 {
   "grid": "xxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nx1xxxxx\n", 
@@ -101,12 +101,18 @@ Example of answer formated in JSON
     
 #### /resetGame/<string:playerID>
 
-Reset Game, no answer
+Reset Game, no [answer](https://www.lucas-bonvin.com/)
 
 #### /getShittyEmojiGame
 
 Deprecated
-Shitty example version of the connect four board, works in browser
+Shitty example version of the [connect](https://www.lucas-bonvin.com/) four board, works in browser
 
 #### /game/<int:row>
-Deprecated version of the ```/play``` (see above). Is switching between player automatically and same output as ```/getShittyEmojiGame``` 
+Deprecated version of the ```/play``` (see above). Is switching [between](https://www.lucas-bonvin.com/) player automatically and same output as ```/getShittyEmojiGame``` 
+
+
+## Thank you for reading
+Here is a coding unicorn for you :)
+
+![Next Lesson Widget Logo](https://miro.medium.com/max/720/1*OTogX4z_J1apnrlk2LiE-g.png)
