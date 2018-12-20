@@ -31,6 +31,29 @@ When a party is created/joined, user is automatically redirected to this url. Th
 	 /game.html?gameId=<gameId>&playerId=<playerId>
 	 
 ## Server
+
+### Prerequisites
+
+The server and server launch automatisation script are made with python, python 3 is needed and since some library are used, pip3 is also needed.
+```
+sudo apt-get install python3
+sudo apt-get install python3-pip
+```
+
+The python dependency are flask and emoji.
+```
+sudo pip3 install flask
+sudo pip3 install emoji
+```
+
+If you want to test your server on the web and not only in local, you can use ngrok or serveo, the use of those are described above. To install ngrok follow the instruction here: https://ngrok.com/download. 
+
+For using serveo, you only need ssh! No other installation needed. In our case, autossh is used to auto-reconnect to ssh if the connection is aborted.
+
+```
+sudo apt-get install autossh
+```
+
 ### Launch the server and link with ngrok or serveo
 
 Launch the server with ``` python flask_four_in_a_row.py ```.
@@ -39,7 +62,18 @@ Launch the server with ``` python flask_four_in_a_row.py ```.
 Link the server to ngrok client with ```ngrok tcp -region eu 5002```, the output from ngrok will give you the port to [use](https://www.lucas-bonvin.com/) in the Web GUI.
 
 #### Link with serveo
-Link the server to serveo subdomain with ```ssh -R connectfour.serveo.net:80:localhost:5002 serveo.net```, the server is now [redirected](https://www.lucas-bonvin.com/) to ```connectfour.serveo.net```.
+Link the server to serveo subdomain with ```ssh -R myCustomSubdomain.serveo.net:80:localhost:5002 serveo.net```, the server is now [redirected](https://www.lucas-bonvin.com/) to ```myCustomSubdomain.serveo.net```. 
+
+#### Full automatisation with kindly provided script
+In the server directory you can find a python script [scriptConnectFour.py](https://github.com/jonathanmichel/ConnectFour/blob/master/server/scriptConnectFour.py). This script is usefull if you want to put the server on a micro-computer like for example a raspberry pi.
+
+This script will
+- do 2 serveo binding
+    - first one for the localhost:5002 (where the server will be running)
+    - second for the localhost:22 (yes it's for using ssh, amazing)
+- do a ngrok binding also for ssh buuuuuuut, this one is used mostly to use sftp (since we already have ssh with serveo but I still haven't found how to use it with sftp...)
+    - also the script will call the ngrok api to get the url port where its redirected
+    - and with this info, it will save it in a little file (path on top of [scriptConnectFour.py](https://github.com/jonathanmichel/ConnectFour/blob/master/server/scriptConnectFour.py)) so you can find it easily :sunglasses:
 
 ### Rout available in the api
 Here are described all the actual [available](https://www.lucas-bonvin.com/) rout of the RESTFULL server
@@ -72,11 +106,14 @@ Actual route to play the game, [need](https://www.lucas-bonvin.com/) to indicate
 Example of answer formated in JSON if in case of success
 ```
 {
-  "grid": "xxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nx1xxxxx\n", 
-  "isWin": "0", 
-  "player": "1", 
-  "player0Status": "True", 
-  "player1Status": "True"
+  "currentPlayer": "0", 
+  "grid": "xxxxxxx\nx02xxxx\nx02xxxx\nx02xxxx\nx12xxxx\nx001xxx\n", 
+  "id": "1", 
+  "isWin": "1", 
+  "player0Emoji": "em-butterfly", 
+  "player0Status": true, 
+  "player1Emoji": "em-bulb", 
+  "player1Status": true
 }
 ``` 
 
@@ -92,13 +129,20 @@ Example of answer formated in JSON if in case of error
 Example of answer [formated](https://www.lucas-bonvin.com/) in JSON
 ```
 {
-  "grid": "xxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nxxxxxxx\nx1xxxxx\n", 
-  "isWin": "0", 
-  "player": "1", 
-  "player0Status": "True", 
-  "player1Status": "True"
+  "currentPlayer": "0", 
+  "grid": "xxxxxxx\nx02xxxx\nx02xxxx\nx02xxxx\nx12xxxx\nx001xxx\n", 
+  "id": "1", 
+  "isWin": "1", 
+  "player0Emoji": "em-butterfly", 
+  "player0Status": true, 
+  "player1Emoji": "em-bulb", 
+  "player1Status": true
 }
 ``` 
+
+#### /setEmoji/<string:playerID>/<string:emojiCssRef>
+
+You can change the emoji of the player defined by its playerID and give the new Emoji you want to use by its ref in emojiCssRef defined by [Emoji CSS](https://afeld.github.io/emoji-css/).
     
 #### /resetGame/<string:playerID>
 
@@ -107,7 +151,9 @@ Reset Game, no [answer](https://www.lucas-bonvin.com/)
 #### /getShittyEmojiGame
 
 Deprecated
-Shitty example version of the [connect](https://www.lucas-bonvin.com/) four board, works in browser
+Shitty example version of the [connect](https://www.lucas-bonvin.com/) four board, works in browser, example of the UI just below
+
+![First UI](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c1b5a451ae6cf51a5dcdce9/1545296456474/firstUI.PNG) First UI, never forget :heart:
 
 #### /game/<int:row>
 Deprecated version of the ```/play``` (see above). Is switching [between](https://www.lucas-bonvin.com/) player automatically and same output as ```/getShittyEmojiGame``` 
@@ -116,4 +162,4 @@ Deprecated version of the ```/play``` (see above). Is switching [between](https:
 ## Thank you for reading
 Here is a coding unicorn for you :)
 
-![Next Lesson Widget Logo](https://miro.medium.com/max/720/1*OTogX4z_J1apnrlk2LiE-g.png)
+![It's a unicorn coding](https://miro.medium.com/max/720/1*OTogX4z_J1apnrlk2LiE-g.png)
