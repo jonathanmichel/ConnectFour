@@ -1,11 +1,14 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
-
+from datetime import datetime
+from threading import Timer
 import sys
 import time
 import os
 import random
 import pickle
+import json
+import SendMail
 
 file_path = os.path.dirname(__file__)
 sys.path.insert(0, file_path)
@@ -17,11 +20,15 @@ app = Flask(__name__)
 
 gamePickleFileName = "gamePickleFile"
 
+gameSinceStartup = 0
+gameToday = 0
+
 timeCheck = 60*5
 timeSleep = 4
 
 game = Game(0)
 gameArray = []
+severStart = datetime.today()
 
 if os.path.isfile(gamePickleFileName) == True:
 	try:
@@ -42,12 +49,17 @@ if os.path.isfile(gamePickleFileName) == True:
 		print("Pickle File couldn't be loaded")
 else:
 	print("Pickle File doesn't exist")
+   
 
 @app.route('/createGame', strict_slashes=False)
 def createGame():
     newGame = Game(random.randint(0,1))
     gameArray.append(newGame)
     pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
+    global gameSinceStartup
+    global gameToday
+    gameSinceStartup = gameSinceStartup +1
+    gameToday = gameToday + 1 
     
     tmp = newGame.getIdNew()     
     tmp.headers['Access-Control-Allow-Origin'] = '*'
@@ -152,6 +164,45 @@ def setEmoji(playerID, emojiCssRef):
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
     
+@app.route('/getDataFromGames', strict_slashes=False)
+def getDataFromGames():  
+    tmp = jsonify(processDataFromGames())    
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+    
+def processDataFromGames():
+    global gameSinceStartup
+    global gameToday
+    
+    onlineGame = len(gameArray)
+    onlinePlayer = 0
+    offlinePlayer = 0
+    gameIdList = {}
+    for game in gameArray:  
+        gameStatus={}
+        players = []
+        players.append(game.getPlayerID(0))
+        players.append(game.getPlayerID(1))
+        gameStatus["player0Status"] = game.getPlayer0Status()
+        gameStatus["player1Status"] = game.getPlayer1Status()
+        gameStatus["playersID"] = players
+        gameStatus['isWin'] = game.isWin()
+        gameIdList[game.getGameId()] = gameStatus
+        if game.getPlayer0Status() == True:
+            onlinePlayer = onlinePlayer + 1
+        if game.getPlayer1Status() == True:
+            onlinePlayer = onlinePlayer + 1
+    offlinePlayer = (onlineGame*2) - onlinePlayer
+    listDic = {}     
+    listDic['severStart'] = str(severStart)
+    listDic['onlineGame'] = onlineGame
+    listDic['onlinePlayer'] = onlinePlayer
+    listDic['offlinePlayer'] = offlinePlayer
+    listDic['gameIdList'] = gameIdList
+    listDic['gameSinceStartup'] = gameSinceStartup
+    listDic['gameToday'] = gameToday
+    return listDic
+    
 def addHeader(text):
     resp = Response(text)    
     resp.headers['Access-Control-Allow-Origin'] = '*'
@@ -159,7 +210,6 @@ def addHeader(text):
     
 def gameTimeCheck():     
     while(1):
-        print("Player berfore gameTimeCheck: "+str(len(gameArray)))
         for game in gameArray:            
             if time.time()-game.getTimeP0() > timeCheck:    
                 game.setPlayer0Quit(True)
@@ -174,14 +224,32 @@ def gameTimeCheck():
             if game.getPlayersQuit() == True:
                 gameArray.remove(game)
                 break
-        print("Player after gameTimeCheck: "+str(len(gameArray)))
         pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
         time.sleep(timeSleep)
+        
+        
 
+    
+def everyDayTask():
+    SendMail.sendMail("ConnectFour EveryDayStats from: "+ severStart.strftime('%d.%m.%Y'),json.dumps(processDataFromGames(), indent=4, sort_keys=True, ensure_ascii=False))
+    global gameToday
+    x=datetime.today()
+    y=x.replace(day=x.day+1, hour=1, minute=0, second=0, microsecond=0)
+    #y=x.replace(minute=x.minute+2)
+    delta_t=y-x
+    secs=delta_t.total_seconds()+1
+    t = Timer(secs, everyDayTask)
+    t.start()    
+    gameToday = 0
+    print("everyDayTask")
+        
+        
+        
 from logging import FileHandler, Formatter, DEBUG
 
 if __name__ == '__main__':
     try:
+        everyDayTask()
         thread.start_new_thread(gameTimeCheck,())
         file_handler = FileHandler("flask.log")
         file_handler.setLevel(DEBUG)

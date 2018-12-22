@@ -118,8 +118,8 @@ class Game():
                     listDic['grid'] = self.text()
                     listDic['currentPlayer'] = str(self.__player)
                     listDic['isWin'] = str(self.isWin())
-                    listDic['player0Status'] = (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
-                    listDic['player1Status'] = (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
+                    listDic['player0Status'] = self.getPlayer0Status()
+                    listDic['player1Status'] = self.getPlayer1Status()
                     listDic['player0Emoji'] = self.__emojiP0
                     listDic['player1Emoji'] = self.__emojiP1
                     return jsonify(listDic)
@@ -131,11 +131,17 @@ class Game():
             listDic['grid'] = self.text()
             listDic['currentPlayer'] = str(self.__player)
             listDic['isWin'] = str(self.isWin())
-            listDic['player0Status'] = (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
-            listDic['player1Status'] = (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
+            listDic['player0Status'] = self.getPlayer0Status()
+            listDic['player1Status'] = self.getPlayer1Status()
             listDic['player0Emoji'] = self.__emojiP0
             listDic['player1Emoji'] = self.__emojiP1
             return jsonify(listDic)
+            
+    def getPlayer0Status(self):
+        return (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
+        
+    def getPlayer1Status(self):
+        return (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
             
             
     def isWin(self): 
@@ -235,8 +241,8 @@ class Game():
         listDic['grid'] = self.text()
         listDic['currentPlayer'] = str(self.__player)
         listDic['isWin'] = str(self.isWin())
-        listDic['player0Status'] = (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
-        listDic['player1Status'] = (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
+        listDic['player0Status'] = self.getPlayer0Status()
+        listDic['player1Status'] = self.getPlayer1Status()
         listDic['player0Emoji'] = self.__emojiP0
         listDic['player1Emoji'] = self.__emojiP1
     
@@ -269,7 +275,6 @@ class Game():
             return False
             
     def getGameId(self):
-        self.__time = time.time()
         return self.__gameID
         
     def getTimeP0(self):
