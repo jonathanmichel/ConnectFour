@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
 from datetime import datetime
+from datetime import timedelta
 from threading import Timer
 import sys
 import time
@@ -170,6 +171,19 @@ def getDataFromGames():
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
     
+@app.route('/getDataFromGamesCounterReset', strict_slashes=False)
+def getDataFromGamesCounterReset():      
+    global gameToday
+    tmp = jsonify(processDataFromGames())    
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    gameToday = 0
+    return tmp
+    
+@app.after_request
+def afterRequest(response):
+    gameTimeCheck();
+    return response
+    
 def processDataFromGames():
     global gameSinceStartup
     global gameToday
@@ -208,49 +222,28 @@ def addHeader(text):
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
     
-def gameTimeCheck():     
-    while(1):
-        for game in gameArray:            
-            if time.time()-game.getTimeP0() > timeCheck:    
-                game.setPlayer0Quit(True)
-            else:  
-                game.setPlayer0Quit(False)
-            
-            if time.time()-game.getTimeP1() > timeCheck:    
-                game.setPlayer1Quit(True)
-            else:  
-                game.setPlayer1Quit(False)
-            
-            if game.getPlayersQuit() == True:
-                gameArray.remove(game)
-                break
-        pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
-        time.sleep(timeSleep)
+def gameTimeCheck():    
+    for game in gameArray:            
+        if time.time()-game.getTimeP0() > timeCheck:    
+            game.setPlayer0Quit(True)
+        else:  
+            game.setPlayer0Quit(False)
         
+        if time.time()-game.getTimeP1() > timeCheck:    
+            game.setPlayer1Quit(True)
+        else:  
+            game.setPlayer1Quit(False)
         
-
+        if game.getPlayersQuit() == True:
+            gameArray.remove(game)
+            break
+    pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
     
-def everyDayTask():
-    SendMail.sendMail("ConnectFour EveryDayStats from: "+ severStart.strftime('%d.%m.%Y'),json.dumps(processDataFromGames(), indent=4, sort_keys=True, ensure_ascii=False))
-    global gameToday
-    x=datetime.today()
-    y=x.replace(day=x.day+1, hour=1, minute=0, second=0, microsecond=0)
-    #y=x.replace(minute=x.minute+2)
-    delta_t=y-x
-    secs=delta_t.total_seconds()+1
-    t = Timer(secs, everyDayTask)
-    t.start()    
-    gameToday = 0
-    print("everyDayTask")
-        
-        
         
 from logging import FileHandler, Formatter, DEBUG
 
 if __name__ == '__main__':
     try:
-        everyDayTask()
-        thread.start_new_thread(gameTimeCheck,())
         file_handler = FileHandler("flask.log")
         file_handler.setLevel(DEBUG)
         file_handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))

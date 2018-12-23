@@ -3,3 +3,6 @@ server/__pycache__/*
 server/gamePickleFile
 
 client/.idea/*
+server/SendMail\.py
+
+server/mailSendingTask\.py
