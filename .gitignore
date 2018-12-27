@@ -1,8 +1,13 @@
-server/flask\.log
-server/__pycache__/*
-server/gamePickleFile
+
 
 client/.idea/*
-server/SendMail\.py
 
-server/mailSendingTask\.py
+server/flask\.log
+server/__pycache__/*
+
+server/ConnectFourStats/
+
+server/gameStatisticsPickleFileName
+server/gamePickleFile
+
+server/conf/mailConf\.json

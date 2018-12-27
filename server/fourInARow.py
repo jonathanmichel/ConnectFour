@@ -3,7 +3,6 @@ import emoji
 from flask import jsonify
 import random
 import string
-import _thread as thread
 import time
 
 class Token(Enum):
@@ -30,7 +29,8 @@ class Game():
         self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)] 
         self.__timeP0 = time.time()
         self.__timeP1 = 0
-        self.__tokenWhoWin = Token.EMPTY
+        self.__tokenWhoWin = -1
+        self.__numberOfGame = 1
         
         index1 = random.randrange(0,14)
         index2 = random.randrange(0,14)
@@ -51,7 +51,8 @@ class Game():
     def reset(self):
         self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)] 
         self.__player = random.randint(0,1)
-        self.__tokenWhoWin = Token.EMPTY
+        self.__tokenWhoWin = -1
+        self.__numberOfGame = self.__numberOfGame +1
         
     def playerQuit(self):
         self.__numberQuit = self.__numberQuit + 1
@@ -61,6 +62,9 @@ class Game():
         
     def getGrid(self):
         return self.__grid
+        
+    def getNumberOfGame(self):
+        return self.__numberOfGame
     
     def setToken(self, line):
         if self.__player == 0:
@@ -153,54 +157,65 @@ class Game():
         if isDraw == True:
             return 2
             
-        if self.__tokenWhoWin != Token.EMPTY:
+        if self.__tokenWhoWin != -1:
         
-            return self.__tokenWhoWin.value
+            return self.__tokenWhoWin
                     
         for row in range(0,7):
             for col in range(0,7):
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row+1][col] and self.__grid[row][col] == self.__grid[row+2][col] and self.__grid[row][col] == self.__grid[row+3][col]:
                            toReturn = self.__grid[row][col].value
-                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN 
                            self.__grid[row+1][col] = Token.WIN 
                            self.__grid[row+2][col] = Token.WIN 
                            self.__grid[row+3][col] = Token.WIN 
                            self.__tokenWhoWin = toReturn
+                           print("a")
+                           print(row)
+                           print(col)
                            return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row][col+1] and self.__grid[row][col] == self.__grid[row][col+2] and self.__grid[row][col] == self.__grid[row][col+3]:
                            toReturn = self.__grid[row][col].value
-                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN
                            self.__grid[row][col+1] = Token.WIN 
                            self.__grid[row][col+2] = Token.WIN 
                            self.__grid[row][col+3] = Token.WIN
+                           self.__tokenWhoWin = toReturn
+                           print("b")
+                           print(row)
+                           print(col)
                            return toReturn
                 except:
                     tmp = 1
                 try:
                     if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row+1][col+1] and self.__grid[row][col] == self.__grid[row+2][col+2] and self.__grid[row][col] == self.__grid[row+3][col+3]:
                            toReturn = self.__grid[row][col].value
-                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN
                            self.__grid[row+1][col+1] = Token.WIN
                            self.__grid[row+2][col+2] = Token.WIN
                            self.__grid[row+3][col+3] = Token.WIN
+                           self.__tokenWhoWin = toReturn
+                           print("c")
+                           print(row)
+                           print(col)
                            return toReturn
                 except:
                     tmp = 1
                 try:
-                    if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row-1][col+1] and self.__grid[row][col] == self.__grid[row-2][col+2] and self.__grid[row][col] == self.__grid[row-3][col+3]:
+                    if self.__grid[row][col] != Token.EMPTY and self.__grid[row][col] == self.__grid[row-1][col+1] and self.__grid[row][col] == self.__grid[row-2][col+2] and self.__grid[row][col] == self.__grid[row-3][col+3] and row > 2:
                            toReturn = self.__grid[row][col].value
-                           self.__tokenWhoWin = self.__grid[row][col]
                            self.__grid[row][col] = Token.WIN
                            self.__grid[row-1][col+1] = Token.WIN
                            self.__grid[row-2][col+2] = Token.WIN
                            self.__grid[row-3][col+3] = Token.WIN
+                           self.__tokenWhoWin = toReturn
+                           print("d")
+                           print(row)
+                           print(col)
                            return toReturn
                 except:
                     tmp = 1

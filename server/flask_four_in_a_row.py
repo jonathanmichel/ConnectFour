@@ -1,55 +1,82 @@
 #! /usr/bin/env python
 #-*- coding: utf-8 -*-
 from datetime import datetime
-from datetime import timedelta
-from threading import Timer
 import sys
-import time
 import os
 import random
 import pickle
 import json
-import SendMail
+import GraphManager
 
 file_path = os.path.dirname(__file__)
 sys.path.insert(0, file_path)
 
-from flask import Flask, render_template, jsonify, Response, request
+from flask import Flask, render_template, jsonify, Response, request, send_file
 from fourInARow import *
 
 app = Flask(__name__)
 
 gamePickleFileName = "gamePickleFile"
+gameStatisticsPickleFileName = "gameStatisticsPickleFileName"
 
-gameSinceStartup = 0
-gameToday = 0
+class GameStatistics():
+    def __init__(self):
+        self.gameSinceStartup = 0
+        self.gameToday = 0
+
+        self.gameKilled = 0
+        self.gameKilledToday = 0
+
+        self.gameKilledWithoutJoin = 0
+        self.gameKilledWithoutJoinToday = 0
+
+        self.meanPlayedGame = 0
+        self.meanPlayedGameToday = 0
+        self.severOnline = datetime.today()
+        self.severStart = datetime.today()
 
 timeCheck = 60*5
 timeSleep = 4
 
 game = Game(0)
+gameStatistics = GameStatistics()
 gameArray = []
-severStart = datetime.today()
 
 if os.path.isfile(gamePickleFileName) == True:
-	try:
-		gameArray = pickle.load(open(gamePickleFileName, 'rb'))
-		if isinstance(gameArray, list):
-			if len(gameArray)>0:
-				if not isinstance(gameArray[0], Game):
-					print("Picke File doesn't contain a list of Game")
-					gameArray = []
-				else:					
-					print("Picke File successfully loaded")
-			else:					
-				print("Picke File successfully loaded")
-		else:
-			print("Picke File doesn't contain a list")
-			gameArray = []
-	except:
-		print("Pickle File couldn't be loaded")
+    try:
+        gameArray = pickle.load(open(gamePickleFileName, 'rb'))
+        if isinstance(gameArray, list):
+            if len(gameArray)>0:
+                if not isinstance(gameArray[0], Game):
+                    print("gamePickleFileName File doesn't contain a list of Game")
+                    gameArray = []
+                else:
+                    print("gamePickleFileName File successfully loaded")
+            else:
+                print("gamePickleFileName File successfully loaded")
+        else:
+            print("gamePickleFileName File doesn't contain a list")
+            gameArray = []
+    except:
+        print("gamePickleFileName File couldn't be loaded")
 else:
-	print("Pickle File doesn't exist")
+	print("gamePickleFileName File doesn't exist")
+    
+if os.path.isfile(gameStatisticsPickleFileName) == True:
+    try:
+        gameStatistics = pickle.load(open(gameStatisticsPickleFileName, 'rb'))
+        if not isinstance(gameStatistics, GameStatistics):
+            print("gameStatisticsPickleFileName File doesn't contain GameStatistics")
+            gameStatistics = GameStatistics()
+        else:
+            print("gameStatisticsPickleFileName File successfully loaded")
+    except:
+        print("gameStatisticsPickleFileName File couldn't be loaded")
+else:
+    print("gameStatisticsPickleFileName File doesn't exist")
+
+    
+gameStatistics.severStart = datetime.today()
    
 
 @app.route('/createGame', strict_slashes=False)
@@ -57,10 +84,9 @@ def createGame():
     newGame = Game(random.randint(0,1))
     gameArray.append(newGame)
     pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
-    global gameSinceStartup
-    global gameToday
-    gameSinceStartup = gameSinceStartup +1
-    gameToday = gameToday + 1 
+    gameStatistics.gameSinceStartup = gameStatistics.gameSinceStartup +1
+    gameStatistics.gameToday = gameStatistics.gameToday + 1 
+    pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     
     tmp = newGame.getIdNew()     
     tmp.headers['Access-Control-Allow-Origin'] = '*'
@@ -172,22 +198,32 @@ def getDataFromGames():
     return tmp
     
 @app.route('/getDataFromGamesCounterReset', strict_slashes=False)
-def getDataFromGamesCounterReset():      
-    global gameToday
+def getDataFromGamesCounterReset():   
     tmp = jsonify(processDataFromGames())    
     tmp.headers['Access-Control-Allow-Origin'] = '*'
-    gameToday = 0
+    gameStatistics.gameToday = 0    
+    gameStatistics.gameKilledToday = 0
+    gameStatistics.gameKilledWithoutJoinToday = 0
+    gameStatistics.meanPlayedGameToday = 0
+    pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     return tmp
+    
+@app.route('/getGraph/gameSessionPlayed', strict_slashes=False)
+def getGraphGameSessionPlayed():   
+    GraphManager.gameSessionPlayed(processDataFromGames())
+    return send_file('gameSessionPlayed.png', mimetype='image/png')  
+    
+@app.route('/getGraph/graphStatistic', strict_slashes=False)
+def getGraphGraphStatistic():   
+    GraphManager.graphStatistic(processDataFromGames())
+    return send_file('graphStatistic.png', mimetype='image/png')
     
 @app.after_request
 def afterRequest(response):
     gameTimeCheck();
     return response
     
-def processDataFromGames():
-    global gameSinceStartup
-    global gameToday
-    
+def processDataFromGames():    
     onlineGame = len(gameArray)
     onlinePlayer = 0
     offlinePlayer = 0
@@ -201,6 +237,7 @@ def processDataFromGames():
         gameStatus["player1Status"] = game.getPlayer1Status()
         gameStatus["playersID"] = players
         gameStatus['isWin'] = game.isWin()
+        gameStatus['numberOfGame'] = game.getNumberOfGame()
         gameIdList[game.getGameId()] = gameStatus
         if game.getPlayer0Status() == True:
             onlinePlayer = onlinePlayer + 1
@@ -208,13 +245,21 @@ def processDataFromGames():
             onlinePlayer = onlinePlayer + 1
     offlinePlayer = (onlineGame*2) - onlinePlayer
     listDic = {}     
-    listDic['severStart'] = str(severStart)
+    listDic['severStart'] = str(gameStatistics.severStart)
+    listDic['severOnline'] = str(gameStatistics.severOnline)
     listDic['onlineGame'] = onlineGame
     listDic['onlinePlayer'] = onlinePlayer
     listDic['offlinePlayer'] = offlinePlayer
     listDic['gameIdList'] = gameIdList
-    listDic['gameSinceStartup'] = gameSinceStartup
-    listDic['gameToday'] = gameToday
+    listDic['gameSinceStartup'] = gameStatistics.gameSinceStartup
+    listDic['gameToday'] = gameStatistics.gameToday    
+    listDic['gameKilledToday'] = gameStatistics.gameKilledToday
+    listDic['gameKilledWithoutJoinToday'] = gameStatistics.gameKilledWithoutJoinToday 
+    listDic['gameKilled'] = gameStatistics.gameKilled
+    listDic['gameKilledWithoutJoin'] = gameStatistics.gameKilledWithoutJoin 
+    listDic['meanPlayedGame'] = gameStatistics.meanPlayedGame
+    listDic['meanPlayedGameToday'] = gameStatistics.meanPlayedGameToday     
+    pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     return listDic
     
 def addHeader(text):
@@ -222,7 +267,7 @@ def addHeader(text):
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
     
-def gameTimeCheck():    
+def gameTimeCheck():        
     for game in gameArray:            
         if time.time()-game.getTimeP0() > timeCheck:    
             game.setPlayer0Quit(True)
@@ -235,6 +280,18 @@ def gameTimeCheck():
             game.setPlayer1Quit(False)
         
         if game.getPlayersQuit() == True:
+            nGamePlayed = game.getNumberOfGame()
+            gameStatistics.gameKilled = gameStatistics.gameKilled +1
+            gameStatistics.gameKilledToday = gameStatistics.gameKilledToday + 1
+            if game.getPlayerID(1) == "":
+                gameStatistics.gameKilledWithoutJoin = gameStatistics.gameKilledWithoutJoin + 1
+                gameStatistics.gameKilledWithoutJoinToday = gameStatistics.gameKilledWithoutJoinToday +1
+                nGamePlayed = 0
+            
+            gameStatistics.meanPlayedGame = (gameStatistics.meanPlayedGame * (gameStatistics.gameKilled -1) + nGamePlayed)/gameStatistics.gameKilled
+            gameStatistics.meanPlayedGameToday = (gameStatistics.meanPlayedGameToday * (gameStatistics.gameKilledToday -1) + nGamePlayed)/gameStatistics.gameKilledToday            
+            pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
+            
             gameArray.remove(game)
             break
     pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
