@@ -40,10 +40,11 @@ sudo apt-get install python3
 sudo apt-get install python3-pip
 ```
 
-The python dependency are flask and emoji.
+The python dependency are flask (rest server) and emoji(old GUI but keep it for nostalgia) and matplotlib (statistics plot of the game).
 ```
 sudo pip3 install flask
 sudo pip3 install emoji
+sudo pip3 install matplotlib
 ```
 
 If you want to test your server on the web and not only in local, you can use ngrok or serveo, the use of those are described above. To install ngrok follow the instruction here: https://ngrok.com/download. 
@@ -53,6 +54,9 @@ For using serveo, you only need ssh! No other installation needed. In our case, 
 ```
 sudo apt-get install autossh
 ```
+
+The server has a code that is ment to be called every day: [mailSendingTask.py](https://github.com/jonathanmichel/ConnectFour/blob/master/server/mailSendingTask.py)
+For this purpose, you have to configure your email smpt parameter. To do so, you have to create a file ```/con/mailConf.json``` containing some authentication data. An empty example is here: [/conf/mailConf-Empty.json](https://github.com/jonathanmichel/ConnectFour/blob/master/server/conf/mailConf-Empyt.json)
 
 ### Launch the server and link with ngrok or serveo
 
@@ -147,6 +151,59 @@ You can change the emoji of the player defined by its playerID and give the new 
 #### /resetGame/<string:playerID>
 
 Reset Game, no [answer](https://www.lucas-bonvin.com/)
+
+#### /getDataFromGames
+I love statistics, so I added statistics! You can have data about the current online game, some overall statistics and statistics about today's game! Yeah I know pretty awesome!
+```
+{
+	"gameIdList": {
+		"InP4o0YjGP": {
+			"isWin": 0,
+			"numberOfGame": 2,
+			"player0Status": true,
+			"player1Status": true,
+			"playersID": ["Xk4RqxPgfX",
+			"6llSrCv95M"]
+		},
+		"LjDUIkiDe7": {
+			"isWin": -1,
+			"numberOfGame": 1,
+			"player0Status": true,
+			"player1Status": false,
+			"playersID": ["No9FDm3UJB",
+			""]
+		}
+	},
+	"gameKilled": 19,
+	"gameKilledToday": 2,
+	"gameKilledWithoutJoin": 12,
+	"gameKilledWithoutJoinToday": 1,
+	"gameSinceStartup": 21,
+	"gameToday": 4,
+	"meanPlayedGame": 0.8421052631578947,
+	"meanPlayedGameToday": 2.0,
+	"offlinePlayer": 1,
+	"onlineGame": 2,
+	"onlinePlayer": 3,
+	"severOnline": "2018-12-26 18:22:37.716929",
+	"severStart": "2018-12-26 23:07:34.627688"
+}
+```
+    
+#### /getDataFromGamesCounterReset
+It is completly similar to ```/getDataFromGames```, will return the same outputs, **but this one is ment to be call everyday to reset all the day related statistics.**  
+
+	
+#### /getGraph/gameSessionPlayed
+I told you, I like statistics, but what is better than just statistics? Graphs with statistics!
+the gameSessionPlayed graph give you the mean of played session overall, the mean of played session today and the amount of game session played for all online game.
+
+![gameSessionPlayed](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c25407870a6ad01642e5387/1545945210269/gameSessionPlayed.png?format=1500w) 
+    
+#### /getGraph/graphStatistic
+The software store everyday the output of ```/getDataFromGames``` and so, with ``` /getGraph/graphStatistic ```, you can have a graph of some of those statistics in function of the time.
+
+![graphStatistic](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c2540750ebbe8593a086aca/1545945209458/graphStatistic.png?format=2500w) 
 
 #### /getShittyEmojiGame
 
