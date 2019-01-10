@@ -14,7 +14,7 @@ def graphStatistic(dict=None):
     if dict != None:
         with open(mypath+datetime.datetime.today().strftime('%d-%m-%Y')+'.json','w+') as file:
             file.write(str(json.dumps(dict, indent=4, sort_keys=True, ensure_ascii=False)))
-        
+
     jsonFiles = [f for f in listdir(mypath) if isfile(join(mypath, f))]
     datesFile=[]
 
@@ -46,16 +46,23 @@ def graphStatistic(dict=None):
         meanPlayedGameToday.append(parsed.get('meanPlayedGameToday'))
 
     fig, ax = plt.subplots()
-    ax.plot(sorteddates, gameKilledToday, label = 'gameKilledToday')
-    ax.plot(sorteddates, gameKilledWithoutJoinToday, label = 'gameKilledWithoutJoinToday')
-    ax.plot(sorteddates, gameToday, label = 'gameToday')
-    ax.plot(sorteddates, meanPlayedGameToday, label = 'meanPlayedGameToday')
+    ax.plot(sorteddates, gameKilledToday, label = 'gameKilledToday', alpha=0.7, marker='1')
+    ax.plot(sorteddates, gameKilledWithoutJoinToday, label = 'gameKilledWithoutJoinToday', alpha=0.7, marker='2')
+    ax.plot(sorteddates, gameToday, label = 'gameToday', alpha=0.7, marker='3')
+    ax.plot(sorteddates, meanPlayedGameToday, label = 'meanPlayedGameToday', alpha=0.7, marker='4')
 
     ax.set(xlabel='Date', ylabel='Number of games',
            title='ConnectFour statistics: ' + datetime.datetime.today().strftime('%d.%m.%Y'))
     ax.grid()
 
     ax.legend()
+    plt.xticks(rotation=90)
+    every_nth = round(len(ax.xaxis.get_ticklabels())/15)
+    for n, label in enumerate(ax.xaxis.get_ticklabels()):
+        if n % every_nth != 0:
+            label.set_visible(False)
+    plt.tight_layout()
+
 
     fig.savefig("/home/lucblender/ConnectFour/server/graphStatistic.png")
 

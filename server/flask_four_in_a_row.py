@@ -2,10 +2,10 @@
 #-*- coding: utf-8 -*-
 from datetime import datetime
 import sys
+import time
 import os
 import random
 import pickle
-import json
 import GraphManager
 
 file_path = os.path.dirname(__file__)
@@ -61,7 +61,7 @@ if os.path.isfile(gamePickleFileName) == True:
         print("gamePickleFileName File couldn't be loaded")
 else:
 	print("gamePickleFileName File doesn't exist")
-    
+
 if os.path.isfile(gameStatisticsPickleFileName) == True:
     try:
         gameStatistics = pickle.load(open(gameStatisticsPickleFileName, 'rb'))
@@ -75,9 +75,9 @@ if os.path.isfile(gameStatisticsPickleFileName) == True:
 else:
     print("gameStatisticsPickleFileName File doesn't exist")
 
-    
+
 gameStatistics.severStart = datetime.today()
-   
+
 
 @app.route('/createGame', strict_slashes=False)
 def createGame():
@@ -85,34 +85,34 @@ def createGame():
     gameArray.append(newGame)
     pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
     gameStatistics.gameSinceStartup = gameStatistics.gameSinceStartup +1
-    gameStatistics.gameToday = gameStatistics.gameToday + 1 
+    gameStatistics.gameToday = gameStatistics.gameToday + 1
     pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
-    
-    tmp = newGame.getIdNew()     
+
+    tmp = newGame.getIdNew()
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
-    
-    
+
+
 @app.route('/joinGame/<string:gameID>', strict_slashes=False)
 def joinGame(gameID):
     for game in gameArray:
-        if game.getGameId() == gameID:                     
-            tmp = game.getIdJoin() 
+        if game.getGameId() == gameID:
+            tmp = game.getIdJoin()
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
-    
-    listDic = {}     
+
+    listDic = {}
     listDic['gameID'] = 0
-    listDic['playerID'] = 0  
-    
-    tmp = jsonify(listDic)    
+    listDic['playerID'] = 0
+
+    tmp = jsonify(listDic)
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
-    
+
 @app.route('/quitGame/<string:playerID>', strict_slashes=False)
 def quitGame(playerID):
     for game in gameArray:
-        if game.isPlayer(playerID) == True:                     
+        if game.isPlayer(playerID) == True:
             game.playerQuit()
             print(game.getNumberQuit())
             if game.getNumberQuit() == 2:
@@ -126,22 +126,22 @@ def quitGame(playerID):
 def gameRow(row):
     game.setToken(row)
     return addHeader(game.emojiText())
-   
+
 @app.route('/play/<string:playerID>/<int:row>', strict_slashes=False)
-def playRow(playerID,row):  
+def playRow(playerID,row):
     for game in gameArray:
-        if game.isPlayer(playerID) == True:        
-            tmp = game.setPlayToken(playerID,row) 
+        if game.isPlayer(playerID) == True:
+            tmp = game.setPlayToken(playerID,row)
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
-    listDic = {}     
+    listDic = {}
     listDic['ERROR'] = "Player has no Game Assigned"
-    
-    tmp = jsonify(listDic)    
+
+    tmp = jsonify(listDic)
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
-    
-    
+
+
 @app.route('/getShittyEmojiGame', strict_slashes=False)
 def getShittyEmojiGame():
     return addHeader(game.emojiText())
@@ -149,86 +149,110 @@ def getShittyEmojiGame():
 @app.route('/getGame/<string:playerID>', strict_slashes=False)
 def getGame(playerID):
     for game in gameArray:
-        if game.isPlayer(playerID) == True:        
-            tmp = game.getGame(playerID) 
+        if game.isPlayer(playerID) == True:
+            tmp = game.getGame(playerID)
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
-    listDic = {}     
+    listDic = {}
     listDic['ERROR'] = "Player has no Game Assigned"
-    
-    tmp = jsonify(listDic)    
+
+    tmp = jsonify(listDic)
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
-    
+
 @app.route('/resetGame/<string:playerID>', strict_slashes=False)
 def resetGame(playerID):
     for game in gameArray:
         if game.isPlayer(playerID) == True:
-            return addHeader(game.reset())  
-    listDic = {}     
+            return addHeader(game.reset())
+    listDic = {}
     listDic['ERROR'] = "Player has no Game Assigned"
-    
-    tmp = jsonify(listDic)    
+
+    tmp = jsonify(listDic)
     tmp.headers['Access-Control-Allow-Origin'] = '*'
-    return tmp  
+    return tmp
 
 @app.route('/setEmoji/<string:playerID>/<string:emojiCssRef>', strict_slashes=False)
 def setEmoji(playerID, emojiCssRef):
     for game in gameArray:
         if game.isPlayer(playerID) == True:
             game.setPlayerEmoji(playerID, emojiCssRef)
-            listDic = {}     
+            listDic = {}
             listDic['SUCCESS'] = "EMOJI SET"
-            
-            tmp = jsonify(listDic)    
+
+            tmp = jsonify(listDic)
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
-    
-    listDic = {}     
+
+    listDic = {}
     listDic['ERROR'] = "Player has no Game Assigned"
-    
-    tmp = jsonify(listDic)    
+
+    tmp = jsonify(listDic)
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
-    
+
 @app.route('/getDataFromGames', strict_slashes=False)
-def getDataFromGames():  
-    tmp = jsonify(processDataFromGames())    
+def getDataFromGames():
+    tmp = jsonify(processDataFromGames())
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
-    
+
 @app.route('/getDataFromGamesCounterReset', strict_slashes=False)
-def getDataFromGamesCounterReset():   
-    tmp = jsonify(processDataFromGames())    
+def getDataFromGamesCounterReset():
+    tmp = jsonify(processDataFromGames())
     tmp.headers['Access-Control-Allow-Origin'] = '*'
-    gameStatistics.gameToday = 0    
+    gameStatistics.gameToday = 0
     gameStatistics.gameKilledToday = 0
     gameStatistics.gameKilledWithoutJoinToday = 0
     gameStatistics.meanPlayedGameToday = 0
     pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     return tmp
-    
+
 @app.route('/getGraph/gameSessionPlayed', strict_slashes=False)
-def getGraphGameSessionPlayed():   
+def getGraphGameSessionPlayed():
     GraphManager.gameSessionPlayed(processDataFromGames())
-    return send_file('gameSessionPlayed.png', mimetype='image/png')  
-    
+    return send_file('gameSessionPlayed.png', mimetype='image/png')
+
 @app.route('/getGraph/graphStatistic', strict_slashes=False)
-def getGraphGraphStatistic():   
+def getGraphGraphStatistic():
     GraphManager.graphStatistic(processDataFromGames())
     return send_file('graphStatistic.png', mimetype='image/png')
-    
-@app.after_request
-def afterRequest(response):
-    gameTimeCheck();
-    return response
-    
-def processDataFromGames():    
+
+@app.route('/chat',methods=['GET', 'POST'], strict_slashes=False)
+def chat():
+    if request.method=='POST':
+        content = request.get_json()
+        text = content['text']
+        playerID = content['playerID']
+        for game in gameArray:
+            if game.isPlayer(playerID) == True:
+                game.addMessage(playerID, text)
+    listDic = {}
+    listDic['SUCCESS'] = "message sent"
+    tmp = jsonify(listDic)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
+@app.route('/chatTest',methods=['GET', 'POST'], strict_slashes=False)
+def chatTest():
+    for game in gameArray:
+        game.addMessageRandom()
+    listDic = {}
+    listDic['SUCCESS'] = "message sent"
+    tmp = jsonify(listDic)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
+@app.before_request
+def beforeRequest():
+    gameTimeCheck()
+
+def processDataFromGames():
     onlineGame = len(gameArray)
     onlinePlayer = 0
     offlinePlayer = 0
     gameIdList = {}
-    for game in gameArray:  
+    for game in gameArray:
         gameStatus={}
         players = []
         players.append(game.getPlayerID(0))
@@ -244,7 +268,7 @@ def processDataFromGames():
         if game.getPlayer1Status() == True:
             onlinePlayer = onlinePlayer + 1
     offlinePlayer = (onlineGame*2) - onlinePlayer
-    listDic = {}     
+    listDic = {}
     listDic['severStart'] = str(gameStatistics.severStart)
     listDic['severOnline'] = str(gameStatistics.severOnline)
     listDic['onlineGame'] = onlineGame
@@ -252,33 +276,35 @@ def processDataFromGames():
     listDic['offlinePlayer'] = offlinePlayer
     listDic['gameIdList'] = gameIdList
     listDic['gameSinceStartup'] = gameStatistics.gameSinceStartup
-    listDic['gameToday'] = gameStatistics.gameToday    
+    listDic['gameToday'] = gameStatistics.gameToday
     listDic['gameKilledToday'] = gameStatistics.gameKilledToday
-    listDic['gameKilledWithoutJoinToday'] = gameStatistics.gameKilledWithoutJoinToday 
+    listDic['gameKilledWithoutJoinToday'] = gameStatistics.gameKilledWithoutJoinToday
     listDic['gameKilled'] = gameStatistics.gameKilled
-    listDic['gameKilledWithoutJoin'] = gameStatistics.gameKilledWithoutJoin 
+    listDic['gameKilledWithoutJoin'] = gameStatistics.gameKilledWithoutJoin
     listDic['meanPlayedGame'] = gameStatistics.meanPlayedGame
-    listDic['meanPlayedGameToday'] = gameStatistics.meanPlayedGameToday     
+    listDic['meanPlayedGameToday'] = gameStatistics.meanPlayedGameToday
     pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     return listDic
-    
+
 def addHeader(text):
-    resp = Response(text)    
+    resp = Response(text)
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
-    
-def gameTimeCheck():        
-    for game in gameArray:            
-        if time.time()-game.getTimeP0() > timeCheck:    
+
+def gameTimeCheck():
+    toRemove = []
+    global gameArray
+    for game in gameArray:
+        if time.time()-game.getTimeP0() > timeCheck:
             game.setPlayer0Quit(True)
-        else:  
+        else:
             game.setPlayer0Quit(False)
-        
-        if time.time()-game.getTimeP1() > timeCheck:    
+
+        if time.time()-game.getTimeP1() > timeCheck:
             game.setPlayer1Quit(True)
-        else:  
+        else:
             game.setPlayer1Quit(False)
-        
+
         if game.getPlayersQuit() == True:
             nGamePlayed = game.getNumberOfGame()
             gameStatistics.gameKilled = gameStatistics.gameKilled +1
@@ -287,16 +313,16 @@ def gameTimeCheck():
                 gameStatistics.gameKilledWithoutJoin = gameStatistics.gameKilledWithoutJoin + 1
                 gameStatistics.gameKilledWithoutJoinToday = gameStatistics.gameKilledWithoutJoinToday +1
                 nGamePlayed = 0
-            
+
             gameStatistics.meanPlayedGame = (gameStatistics.meanPlayedGame * (gameStatistics.gameKilled -1) + nGamePlayed)/gameStatistics.gameKilled
-            gameStatistics.meanPlayedGameToday = (gameStatistics.meanPlayedGameToday * (gameStatistics.gameKilledToday -1) + nGamePlayed)/gameStatistics.gameKilledToday            
+            gameStatistics.meanPlayedGameToday = (gameStatistics.meanPlayedGameToday * (gameStatistics.gameKilledToday -1) + nGamePlayed)/gameStatistics.gameKilledToday
             pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
-            
-            gameArray.remove(game)
-            break
+            toRemove.append(game)
+
+    gameArray = [x for x in gameArray if x not in toRemove]
     pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
-    
-        
+
+
 from logging import FileHandler, Formatter, DEBUG
 
 if __name__ == '__main__':
