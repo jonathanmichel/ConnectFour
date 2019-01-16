@@ -40,11 +40,12 @@ sudo apt-get install python3
 sudo apt-get install python3-pip
 ```
 
-The python dependency are flask (rest server) and emoji(old GUI but keep it for nostalgia) and matplotlib (statistics plot of the game).
+The python dependency are flask (rest server), flask-cors (the api is compatible with CORS (Cross Origin Resource Sharing)) and emoji(old GUI but keep it for nostalgia) and matplotlib (statistics plot of the game).
 ```
 sudo pip3 install flask
 sudo pip3 install emoji
 sudo pip3 install matplotlib
+sudo pip3 install flask-cors
 ```
 
 If you want to test your server on the web and not only in local, you can use ngrok or serveo, the use of those are described above. To install ngrok follow the instruction here: https://ngrok.com/download. 
@@ -79,8 +80,11 @@ This script will
     - also the script will call the ngrok api to get the url port where its redirected
     - and with this info, it will save it in a little file (path on top of [scriptConnectFour.py](https://github.com/jonathanmichel/ConnectFour/blob/master/server/scriptConnectFour.py)) so you can find it easily :sunglasses:
 
-### Rout available in the api
-Here are described all the actual [available](https://www.lucas-bonvin.com/) rout of the RESTFULL server
+### Route available in the api
+Here are described all the actual [available](https://www.lucas-bonvin.com/) route of the RESTFULL server
+
+#### '/'  default route
+Will redirect to this github page
 
 #### /createGame
 Create a new connect four [game](https://www.lucas-bonvin.com/), will return the unique gameID and playerID in JSON format.
@@ -152,6 +156,24 @@ You can change the emoji of the player defined by its playerID and give the new 
 
 Reset Game, no [answer](https://www.lucas-bonvin.com/)
 
+#### /chat [POST]
+
+You can send a message in the chat with a post request. CORS request are supported. Expected request:
+
+```Content-Type: application/json```
+
+```{"text":"This is my message", "playerID":"as4D266PDY"}```
+
+#### /chatAdmin [POST]
+
+Admin can send a message too in the chat of a specific game with a post request. CORS request are supported. Expected request:
+
+```Content-Type: application/json```
+
+```{"text":"This is my message", "gameID":"yztrXfBQwN"}```
+
+
+
 #### /getDataFromGames
 I love statistics, so I added statistics! You can have data about the current online game, some overall statistics and statistics about today's game! Yeah I know pretty awesome!
 ```
@@ -204,6 +226,13 @@ the gameSessionPlayed graph give you the mean of played session overall, the mea
 The software store everyday the output of ```/getDataFromGames``` and so, with ``` /getGraph/graphStatistic ```, you can have a graph of some of those statistics in function of the time.
 
 ![graphStatistic](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c2540750ebbe8593a086aca/1545945209458/graphStatistic.png?format=2500w) 
+
+
+#### /getGraph/gameSessionPlayedSVG
+Same result as /getGraph/gameSessionPlayed but in SVG.
+
+#### /getGraph/graphStatisticSVG
+Same result as /getGraph/graphStatistic but in SVG.
 
 #### /getShittyEmojiGame
 

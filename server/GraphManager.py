@@ -65,6 +65,7 @@ def graphStatistic(dict=None):
 
 
     fig.savefig("/home/lucblender/ConnectFour/server/graphStatistic.png")
+    fig.savefig("/home/lucblender/ConnectFour/server/graphStatistic.svg")
 
 def gameSessionPlayed(dict):
     dataName = []
@@ -96,4 +97,5 @@ def gameSessionPlayed(dict):
 
     plt.tight_layout()
     fig.savefig("/home/lucblender/ConnectFour/server/gameSessionPlayed.png")
+    fig.savefig("/home/lucblender/ConnectFour/server/gameSessionPlayed.svg")
 

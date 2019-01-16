@@ -11,10 +11,14 @@ import GraphManager
 file_path = os.path.dirname(__file__)
 sys.path.insert(0, file_path)
 
-from flask import Flask, render_template, jsonify, Response, request, send_file
+from flask import Flask, jsonify, Response, request, send_file, redirect
 from fourInARow import *
+from flask_cors import CORS
 
 app = Flask(__name__)
+cors = CORS(app)
+
+
 
 gamePickleFileName = "gamePickleFile"
 gameStatisticsPickleFileName = "gameStatisticsPickleFileName"
@@ -78,6 +82,11 @@ else:
 
 gameStatistics.severStart = datetime.today()
 
+
+
+@app.route('/', strict_slashes=False)
+def homeRedirect():
+    return redirect("http://github.com/jonathanmichel/connectFour", code=302)
 
 @app.route('/createGame', strict_slashes=False)
 def createGame():
@@ -218,7 +227,17 @@ def getGraphGraphStatistic():
     GraphManager.graphStatistic(processDataFromGames())
     return send_file('graphStatistic.png', mimetype='image/png')
 
-@app.route('/chat',methods=['GET', 'POST'], strict_slashes=False)
+@app.route('/getGraph/gameSessionPlayedSVG', strict_slashes=False)
+def getGraphGameSessionPlayedSVG():
+    GraphManager.gameSessionPlayed(processDataFromGames())
+    return send_file('gameSessionPlayed.svg', mimetype='image/svg+xml')
+
+@app.route('/getGraph/graphStatisticSVG', strict_slashes=False)
+def getGraphGraphStatisticSVG():
+    GraphManager.graphStatistic(processDataFromGames())
+    return send_file('graphStatistic.svg', mimetype='image/svg+xml')
+
+@app.route('/chat',methods=['POST'], strict_slashes=False)
 def chat():
     if request.method=='POST':
         content = request.get_json()
@@ -227,8 +246,47 @@ def chat():
         for game in gameArray:
             if game.isPlayer(playerID) == True:
                 game.addMessage(playerID, text)
+                listDic = {}
+                listDic['Success'] = "message sent"
+                tmp = jsonify(listDic)
+                tmp.headers['Access-Control-Allow-Origin'] = '*'
+                return tmp
+
+        listDic = {}
+        listDic['ERROR'] = "Player has no Game Assigned"
+        tmp = jsonify(listDic)
+        tmp.headers['Access-Control-Allow-Origin'] = '*'
+        return tmp
+
     listDic = {}
-    listDic['SUCCESS'] = "message sent"
+    listDic[request.method + ' request'] = request.method + ' request handeled'
+    tmp = jsonify(listDic)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
+@app.route('/chatAdmin',methods=['POST'], strict_slashes=False)
+def chatAdmin():
+    if request.method=='POST':
+        content = request.get_json()
+        text = content['text']
+        gameID = content['gameID']
+        for game in gameArray:
+            if game.getGameId() == gameID:
+                game.addMessage("Admin", text)
+                listDic = {}
+                listDic['Success'] = "message sent"
+                tmp = jsonify(listDic)
+                tmp.headers['Access-Control-Allow-Origin'] = '*'
+                return tmp
+
+        listDic = {}
+        listDic['ERROR'] = "GameID has no Game Assigned"
+        tmp = jsonify(listDic)
+        tmp.headers['Access-Control-Allow-Origin'] = '*'
+        return tmp
+
+    listDic = {}
+    listDic[request.method + ' request'] = request.method + ' request handeled'
     tmp = jsonify(listDic)
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
