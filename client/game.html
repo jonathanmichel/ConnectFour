@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Connect four</title>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link id="favicon" rel="icon" href="https://twemoji.maxcdn.com/2/72x72/1f604.png"/>
-  
-  <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="css/toastr.min.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title>Connect four</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link id="favicon" rel="icon" href="https://twemoji.maxcdn.com/2/72x72/1f604.png"/>
+
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/toastr.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/chat.css">
 </head>
 <body>
     <div id="mainView">
@@ -41,12 +42,48 @@
         </div>
     </div>
 
+    <div class="container">
+        <div class="row chat-window col-xs-5 col-md-3" id="chat_window">
+            <div class="card">
+                <div class="card-header">
+                    Chat
+                    <a class="btn btn-info" data-toggle="collapse" href="#msg_container_base" role="button" aria-expanded="false" aria-controls="collapseExample">+</a>
+                </div>
+                <div class="card-body msg_container_base collapse" id="msg_container_base">
+                    <div class="row msg_container base_sent">
+                        <div class="col-md-10 col-xs-10">
+                            <div class="messages msg_sent">
+                                <p>Je te souhaite une bonne journée ! </p>
+                                <time datetime="2009-11-13T20:00">Timéo • 51 min</time>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row msg_container base_receive">
+                        <div class="col-md-10 col-xs-10">
+                            <div class="messages msg_receive">
+                                <p>Ta mère</p>
+                                <time datetime="2009-11-13T20:00">Anna • 51 min</time>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input id="btn-input" type="text" class="form-control chat_input" placeholder="..." />
+                        <button class="btn btn-light" id="btn-chat">Envoyer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"
     integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
     crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <script src="js/vars.js"></script>
+    <script src="js/chat.js"></script>
     <script src="js/functions.js"></script>
     <script src="js/view.js"></script>
     <script src="js/controller.js"></script>

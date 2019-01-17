@@ -45,6 +45,10 @@ function loadGame(gameId, playerId) {
     $('.play-again').click(function(e) {
         location.reload();
     });
+
+    $('#btn-chat').click(function(e) {
+        sendMessage();
+    });
     
     toastr.success("Game loaded");
 }
@@ -67,7 +71,9 @@ function parserJson(data) {
         return;
     }
 
-        config.player = data.id;
+    setMessages(data.messages);
+
+    config.player = data.id;
 
     data.grid = String(data.grid.replace(new RegExp("\n", 'g'),""));
     for (var x = 0; x < 7; x++) {
