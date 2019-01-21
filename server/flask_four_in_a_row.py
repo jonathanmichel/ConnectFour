@@ -245,11 +245,12 @@ def chat():
         playerID = content['playerID']
         for game in gameArray:
             if game.isPlayer(playerID) == True:
-                game.addMessage(playerID, text)
+                game.addMessage(text, playerID)
                 listDic = {}
                 listDic['Success'] = "message sent"
                 tmp = jsonify(listDic)
                 tmp.headers['Access-Control-Allow-Origin'] = '*'
+                tmp.headers['Content-Type'] = 'application/json'
                 return tmp
 
         listDic = {}
