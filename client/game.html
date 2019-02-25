@@ -43,31 +43,31 @@
     </div>
 
     <div class="container">
-        <div class="row chat-window col-xs-5 col-md-3" id="chat_window">
+        <div class="row chat-window col-md-3" id="chat_window">
             <div class="card">
-                <div class="card-header">
-                    Chat
-                    <a class="btn btn-info" data-toggle="collapse" href="#msg_container_base" role="button" aria-expanded="false" aria-controls="collapseExample">+</a>
+                <div class="card-header" id="'chat_header">
+                    <a class="btn btn-info" data-toggle="collapse" href="#msg_container" role="button" aria-expanded="false">+</a> Chat
                 </div>
-                <div class="card-body msg_container_base collapse" id="msg_container_base">
-                    <div class="row msg_container base_sent">
-                        <div class="col-md-10 col-xs-10">
-                            <div class="messages msg_sent">
-                                <p>Je te souhaite une bonne journée ! </p>
-                                <time datetime="2009-11-13T20:00">Timéo • 51 min</time>
+                <div class="collapse" id="msg_container">
+                    <div class="msg_container_base" id="msg_container_base">
+                        <div class="row msg_container base_sent">
+                            <div class="col-md-10 col-xs-10">
+                                <div class="messages msg_sent">
+                                    <p>Je te souhaite une bonne journée ! </p>
+                                    <time datetime="2009-11-13T20:00">Timéo • 51 min</time>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row msg_container base_receive">
+                            <div class="col-md-10 col-xs-10">
+                                <div class="messages msg_receive">
+                                    <p>Ta mère</p>
+                                    <time datetime="2009-11-13T20:00">Anna • 51 min</time>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row msg_container base_receive">
-                        <div class="col-md-10 col-xs-10">
-                            <div class="messages msg_receive">
-                                <p>Ta mère</p>
-                                <time datetime="2009-11-13T20:00">Anna • 51 min</time>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-footer">
+
                     <div class="input-group">
                         <input id="btn-input" type="text" class="form-control chat_input" placeholder="..." />
                         <button class="btn btn-light" id="btn-chat">Envoyer</button>

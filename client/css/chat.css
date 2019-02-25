@@ -1,7 +1,7 @@
 .chat-window{
     position:fixed;
     bottom:0;
-    right:0;
+    left:0;
 }
 
 .top-bar {
@@ -61,4 +61,9 @@
 
 .msg_receive > time{
     float: left;
+}
+
+a.btn{
+    color:inherit;
+    text-decoration: none;
 }

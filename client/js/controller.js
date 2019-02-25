@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    $("#chat_window").hide();
+
     $('#newGame').click(function(event){
         event.preventDefault();
         createGame()
@@ -88,9 +90,11 @@ function parserJson(data) {
     if(data["player" + (1-data.id) + "Status"]) {
         stateMessage = "Opponent is playing";
         $("#linkDiv").hide()
+        $("#chat_window").show();
     } else {
         stateMessage = "Opponent is not connected";
         $("#linkDiv").show()
+        $("#chat_window").hide();
     }
 
     if(data.isWin === "-1") {            // During party
@@ -165,9 +169,7 @@ function createGame() {
     $.ajax({
         url: config.serverUrl + "/createGame",
         success : function(data) {
-            console.log(data);
             if(data.playerID && data.gameID) {
-                console.log("coucou")
                 window.location.href = config.clientGameUrl + "?gameId=" + data.gameID + "&playerId=" + data.playerID
             } else {
                 toastr.error("Game creation failed");

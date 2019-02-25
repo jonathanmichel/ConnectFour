@@ -35,6 +35,7 @@ var setMessages = function(array) {
     array.forEach(function(element) {
         createMessage(element.playerID, element.text, element.timestamp)
     });
+    $("#msg_container_base").scrollTop($("#msg_container_base").prop("scrollHeight"));
 };
 
 var clearMessages = function() {
@@ -44,8 +45,6 @@ var clearMessages = function() {
 var createMessage = function(playerId, text, datetime) {
     var msgKind = "sent";
     var author = "You";
-    console.log("p:" + playerId);
-    console.log("c:" + config.playerId)
     if(playerId !== config.playerId) {
         msgKind = "receive";
         author = "Little red shit";
@@ -70,6 +69,9 @@ var sendMessage = function() {
 };
 
 var sendMessageText = function(text) {
+    if(text === "")
+        return;
+
     $.ajax({
         type: "POST",
         contentType: "application/json",
