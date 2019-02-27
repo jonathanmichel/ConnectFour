@@ -17,7 +17,7 @@ class messageChat():
     def __init__(self, text, playerID):
         self.playerID = playerID
         self.text  = text
-        self.timestamp = datetime.now(timezone('Europe/Zurich')).strftime('%H:%M')
+        self.timestamp = datetime.now(timezone('Europe/Zurich')).strftime('%H:%M%S')
 
 width, height = 6, 7
 DELAY_PLAYER_DEAD = 10
