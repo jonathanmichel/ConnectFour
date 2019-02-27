@@ -100,7 +100,7 @@ class Game():
         if line > width or line < 0:
             return False
         else:
-            for w in range(0,height-1):
+            for w in range(0,height):
                 if self.__grid[line][w] == Token.EMPTY:
                     self.__grid[line][w] = token
                     if self.__player == 0:
@@ -133,7 +133,7 @@ class Game():
             listDic["ERROR"] = "TOKEN OUT OF GRID"
             return jsonify(listDic)
         else:
-            for w in range(0,height-1):
+            for w in range(0,height):
                 if self.__grid[line][w] == Token.EMPTY:
                     self.__grid[line][w] = token
                     if self.__player == 0:
@@ -267,11 +267,11 @@ class Game():
             txt = txt + "<tr>"
             for h in range(0,height):
                 txt = txt + "<td>"
-                if self.__grid[h][width-1-w] == Token.PLAYER0:
+                if self.__grid[h][height-1-w] == Token.PLAYER0:
                     txt = txt+emoji.emojize(':thumbs_up:')
-                elif self.__grid[h][width-1-w] == Token.PLAYER1:
+                elif self.__grid[h][height-1-w] == Token.PLAYER1:
                     txt = txt+emoji.emojize(':scissors:')
-                elif self.__grid[h][width-1-w] == Token.EMPTY:
+                elif self.__grid[h][height-1-w] == Token.EMPTY:
                     txt = txt+emoji.emojize(':white_large_square:')
 
                 txt = txt + "</td>"
@@ -377,11 +377,11 @@ class Game():
             for h in range(0,height):
                 if self.__grid[h][width-1-w] == Token.PLAYER0:
                     txt = txt+"0"
-                elif self.__grid[h][width-1-w] == Token.PLAYER1:
+                elif self.__grid[h][height-1-w] == Token.PLAYER1:
                     txt = txt+"1"
-                elif self.__grid[h][width-1-w] == Token.WIN:
+                elif self.__grid[h][height-1-w] == Token.WIN:
                     txt = txt+"2"
-                elif self.__grid[h][width-1-w] == Token.EMPTY:
+                elif self.__grid[h][height-1-w] == Token.EMPTY:
                     txt = txt+"x"
 
             txt = txt + "\n"
