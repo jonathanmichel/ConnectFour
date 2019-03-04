@@ -23,6 +23,9 @@ cors = CORS(app)
 gamePickleFileName = "gamePickleFile"
 gameStatisticsPickleFileName = "gameStatisticsPickleFileName"
 
+whiteLargeSquare = "em-white_large_square"
+poop = "em-poop"
+
 class GameStatistics():
     def __init__(self):
         self.gameSinceStartup = 0
@@ -200,6 +203,85 @@ def setEmoji(playerID, emojiCssRef):
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
 
+@app.route('/copyEmoji/<string:playerID>', strict_slashes=False)
+def copyEmoji(playerID):
+    for game in gameArray:
+        if game.isPlayer(playerID) == True:
+            if game.isPlayer0(playerID) == True:
+                game.setPlayerEmoji(playerID, game.getPlayer1Emoji())
+            else:
+                game.setPlayerEmoji(playerID, game.getPlayer0Emoji())
+            listDic = {}
+            listDic['SUCCESS'] = "EMOJI SET"
+
+            tmp = jsonify(listDic)
+            tmp.headers['Access-Control-Allow-Origin'] = '*'
+            return tmp
+
+    listDic = {}
+    listDic['ERROR'] = "Player has no Game Assigned"
+
+    tmp = jsonify(listDic)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
+@app.route('/setBlankEmoji/<string:playerID>', strict_slashes=False)
+def setBlankEmoji(playerID):
+    for game in gameArray:
+        if game.isPlayer(playerID) == True:
+            game.setPlayerEmoji(playerID, whiteLargeSquare)
+            listDic = {}
+            listDic['SUCCESS'] = "EMOJI SET"
+
+            tmp = jsonify(listDic)
+            tmp.headers['Access-Control-Allow-Origin'] = '*'
+            return tmp
+
+    listDic = {}
+    listDic['ERROR'] = "Player has no Game Assigned"
+
+    tmp = jsonify(listDic)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
+@app.route('/setPoopEmoji/<string:playerID>', strict_slashes=False)
+def setPoopEmoji(playerID):
+    for game in gameArray:
+        if game.isPlayer(playerID) == True:
+            game.setPlayerEmoji(playerID, poop)
+            listDic = {}
+            listDic['SUCCESS'] = "EMOJI SET"
+
+            tmp = jsonify(listDic)
+            tmp.headers['Access-Control-Allow-Origin'] = '*'
+            return tmp
+
+    listDic = {}
+    listDic['ERROR'] = "Player has no Game Assigned"
+
+    tmp = jsonify(listDic)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
+@app.route('/messUp/<string:playerID>', strict_slashes=False)
+def messUp(playerID):
+    for game in gameArray:
+        if game.isPlayer(playerID) == True:
+            game.randomGrid()
+            listDic = {}
+            listDic['SUCCESS'] = "Messed up mah man"
+
+            tmp = jsonify(listDic)
+            tmp.headers['Access-Control-Allow-Origin'] = '*'
+            return tmp
+
+    listDic = {}
+    listDic['ERROR'] = "Player has no Game Assigned"
+
+    tmp = jsonify(listDic)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
 @app.route('/getDataFromGames', strict_slashes=False)
 def getDataFromGames():
     tmp = jsonify(processDataFromGames())
@@ -222,19 +304,26 @@ def getGraphGameSessionPlayed():
     GraphManager.gameSessionPlayed(processDataFromGames())
     return send_file('gameSessionPlayed.png', mimetype='image/png')
 
-@app.route('/getGraph/graphStatistic', strict_slashes=False)
-def getGraphGraphStatistic():
-    GraphManager.graphStatistic(processDataFromGames())
+@app.route('/getGraph/graphStatistic/<int:size>', strict_slashes=False)
+def getGraphGraphStatistic(size):
+    GraphManager.graphStatistic(processDataFromGames(),size)
     return send_file('graphStatistic.png', mimetype='image/png')
 
+@app.route('/getGraph/graphStatisticRaw/<int:size>', strict_slashes=False)
+def graphStatisticRaw(size):
+    Json = GraphManager.graphStatisticRaw(processDataFromGames(),size)
+    tmp = jsonify(Json)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
 @app.route('/getGraph/gameSessionPlayedSVG', strict_slashes=False)
-def getGraphGameSessionPlayedSVG():
+def getGraphGameSessionPlayedSVGsize():
     GraphManager.gameSessionPlayed(processDataFromGames())
     return send_file('gameSessionPlayed.svg', mimetype='image/svg+xml')
 
-@app.route('/getGraph/graphStatisticSVG', strict_slashes=False)
-def getGraphGraphStatisticSVG():
-    GraphManager.graphStatistic(processDataFromGames())
+@app.route('/getGraph/graphStatisticSVG/<int:size>', strict_slashes=False)
+def getGraphGraphStatisticSVG(size):
+    GraphManager.graphStatistic(processDataFromGames(),size)
     return send_file('graphStatistic.svg', mimetype='image/svg+xml')
 
 @app.route('/chat',methods=['POST'], strict_slashes=False)
@@ -273,7 +362,7 @@ def chatAdmin():
         gameID = content['gameID']
         for game in gameArray:
             if game.getGameId() == gameID:
-                game.addMessage("Admin", text)
+                game.addMessage(text, "Admin")
                 listDic = {}
                 listDic['Success'] = "message sent"
                 tmp = jsonify(listDic)
@@ -326,6 +415,17 @@ def processDataFromGames():
             onlinePlayer = onlinePlayer + 1
         if game.getPlayer1Status() == True:
             onlinePlayer = onlinePlayer + 1
+
+        gameStatus['messages'] = []
+        for message in game.getChat():
+            messageDic = {}
+            messageDic['playerID']=message.playerID
+            messageDic['text']=message.text
+            messageDic['timestamp']=message.timestamp
+            gameStatus['messages'].append(messageDic)
+        gameStatus['player0Emoji']=game.getPlayer0Emoji()
+        gameStatus['player1Emoji']=game.getPlayer1Emoji()
+
     offlinePlayer = (onlineGame*2) - onlinePlayer
     listDic = {}
     listDic['severStart'] = str(gameStatistics.severStart)
