@@ -17,9 +17,9 @@ class messageChat():
     def __init__(self, text, playerID):
         self.playerID = playerID
         self.text  = text
-        self.timestamp = datetime.now(timezone('Europe/Zurich')).strftime('%H:%M')
+        self.timestamp = datetime.now(timezone('Europe/Zurich')).strftime('%H:%M%S')
 
-width, height = 6, 7
+height, width = 6, 7
 DELAY_PLAYER_DEAD = 10
 
 emCssSampleList = ["em-mahjong","em-candy","em-butterfly","em-sparkles","em-aquarius","em-popcorn","em-recycle","em-symbols","em-telephone_receiver","em-bicyclist","em-dizzy_face","em-airplane","em-bulb","em-burrito"]
@@ -34,7 +34,7 @@ class Game():
         self.__player1Quit = False
         self.__player = player
         self.__numberQuit = 0
-        self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)]
+        self.__grid = [[Token.EMPTY for x in range(height)] for y in range(width)]
         self.__timeP0 = time.time()
         self.__timeP1 = 0
         self.__tokenWhoWin = -1
@@ -74,10 +74,13 @@ class Game():
             return "NO PLAYER"
 
     def reset(self):
-        self.__grid = [[Token.EMPTY for x in range(width)] for y in range(height)]
+        self.__grid = [[Token.EMPTY for x in range(height)] for y in range(width)]
         self.__player = random.randint(0,1)
         self.__tokenWhoWin = -1
         self.__numberOfGame = self.__numberOfGame +1
+        
+    def randomGrid(self):
+        self.__grid = [[Token(random.randrange(-1,2)) for x in range(height)] for y in range(width)]
 
     def playerQuit(self):
         self.__numberQuit = self.__numberQuit + 1
@@ -100,7 +103,7 @@ class Game():
         if line > width or line < 0:
             return False
         else:
-            for w in range(0,height-1):
+            for w in range(0,height):
                 if self.__grid[line][w] == Token.EMPTY:
                     self.__grid[line][w] = token
                     if self.__player == 0:
@@ -133,7 +136,7 @@ class Game():
             listDic["ERROR"] = "TOKEN OUT OF GRID"
             return jsonify(listDic)
         else:
-            for w in range(0,height-1):
+            for w in range(0,height):
                 if self.__grid[line][w] == Token.EMPTY:
                     self.__grid[line][w] = token
                     if self.__player == 0:
@@ -263,15 +266,15 @@ class Game():
 
     def emojiText(self):
         txt = '<table style="width:100%">'
-        for w in range(0,width):
+        for h in range(0,height):
             txt = txt + "<tr>"
-            for h in range(0,height):
+            for w in range(0,width):
                 txt = txt + "<td>"
-                if self.__grid[h][width-1-w] == Token.PLAYER0:
+                if self.__grid[w][height-1-h] == Token.PLAYER0:
                     txt = txt+emoji.emojize(':thumbs_up:')
-                elif self.__grid[h][width-1-w] == Token.PLAYER1:
+                elif self.__grid[w][height-1-h] == Token.PLAYER1:
                     txt = txt+emoji.emojize(':scissors:')
-                elif self.__grid[h][width-1-w] == Token.EMPTY:
+                elif self.__grid[w][height-1-h]== Token.EMPTY:
                     txt = txt+emoji.emojize(':white_large_square:')
 
                 txt = txt + "</td>"
@@ -334,6 +337,18 @@ class Game():
             return True
         else:
             return False
+            
+    def isPlayer0(self, testPlayerID):
+        if testPlayerID == self.__player0ID:
+            return True
+        else:
+            return False    
+            
+    def isPlayer1(self, testPlayerID):
+        if testPlayerID == self.__player1ID:
+            return True
+        else:
+            return False
 
     def getGameId(self):
         return self.__gameID
@@ -365,6 +380,12 @@ class Game():
 
     def setPlayer1Emoji(self, value):
         self.__emojiP1 = value
+            
+    def getPlayer0Emoji(self):
+        return self.__emojiP0
+
+    def getPlayer1Emoji(self):
+        return self.__emojiP1
 
     def getPlayersQuit(self):
         return self.__player0Quit and self.__player1Quit
@@ -372,16 +393,15 @@ class Game():
     def text(self):
         self.__time = time.time()
         txt = ""
-        #self.__grid = [[Token(random.randrange(-1,2)) for x in range(width)] for y in range(height)]
-        for w in range(0,width):
-            for h in range(0,height):
-                if self.__grid[h][width-1-w] == Token.PLAYER0:
+        for h in range(0,height):
+            for w in range(0,width):
+                if self.__grid[w][height-1-h] == Token.PLAYER0:
                     txt = txt+"0"
-                elif self.__grid[h][width-1-w] == Token.PLAYER1:
+                elif self.__grid[w][height-1-h] == Token.PLAYER1:
                     txt = txt+"1"
-                elif self.__grid[h][width-1-w] == Token.WIN:
+                elif self.__grid[w][height-1-h] == Token.WIN:
                     txt = txt+"2"
-                elif self.__grid[h][width-1-w] == Token.EMPTY:
+                elif self.__grid[w][height-1-h] == Token.EMPTY:
                     txt = txt+"x"
 
             txt = txt + "\n"

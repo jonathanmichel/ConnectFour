@@ -220,19 +220,45 @@ It is completly similar to ```/getDataFromGames```, will return the same outputs
 I told you, I like statistics, but what is better than just statistics? Graphs with statistics!
 the gameSessionPlayed graph give you the mean of played session overall, the mean of played session today and the amount of game session played for all online game.
 
-![gameSessionPlayed](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c25407870a6ad01642e5387/1545945210269/gameSessionPlayed.png?format=1500w) 
+![gameSessionPlayed](https://lucblender.pythonanywhere.com/getGraph/gameSessionPlayed) 
     
-#### /getGraph/graphStatistic
-The software store everyday the output of ```/getDataFromGames``` and so, with ``` /getGraph/graphStatistic ```, you can have a graph of some of those statistics in function of the time.
+#### /getGraph/graphStatistic/<int:size>
+The software store everyday the output of ```/getDataFromGames``` and so, with ``` /getGraph/graphStatistic ```, you can have a graph of some of those statistics in function of the time. The size parameter is to restrain the amount of data you will get. If size = 0, will get all the data stored (not the best thing to do).
 
-![graphStatistic](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c2540750ebbe8593a086aca/1545945209458/graphStatistic.png?format=2500w) 
+![graphStatistic](https://lucblender.pythonanywhere.com/getGraph/graphStatistic/10) 
 
 
 #### /getGraph/gameSessionPlayedSVG
 Same result as /getGraph/gameSessionPlayed but in SVG.
 
-#### /getGraph/graphStatisticSVG
+#### /getGraph/graphStatisticSVG/<int:size>
 Same result as /getGraph/graphStatistic but in SVG.
+
+#### /getGraph/graphStatisticRaw/<int:size>
+Give the data of /getGraph/graphStatistic but in JSON format.
+
+```
+{
+	"dates": ["28-02-2019",	"01-03-2019",	"02-03-2019",	"03-03-2019",	"04-03-2019"],
+	"gameKilledToday": [3,	1,	9,	3,	8],
+	"gameKilledWithoutJoinToday": [2,	0,	3,	1,	0],
+	"gameToday": [3,	1,	9,	3,	8],
+	"meanPlayedGameToday": [0.6666666666666666,	1.0, 0.6666666666666666,	2.3333333333333335,	1.625]
+}
+```
+
+#### /messUp/<string:playerID>
+Will fill randomly the game of a player aimed by it's playerID.
+
+
+#### /copyEmoji/<string:playerID>
+The player with the id playerID will have the same emoji as its opponent
+
+#### /setBlankEmoji/<string:playerID>
+You can guess what will this one do. Yes blank emoji is the same emoji as the grid, oups. :white_large_square:
+
+#### /setPoopEmoji/<string:playerID>
+You can guess what will this one do too. :poop:
 
 #### /getShittyEmojiGame
 
