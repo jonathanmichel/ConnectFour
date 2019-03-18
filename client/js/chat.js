@@ -1,36 +1,37 @@
-$(document).on('click', '.panel-heading span.icon_minim', function (e) {
-    /*
-    var $this = $(this);
-    if (!$this.hasClass('panel-collapsed')) {
-        $this.parents('.panel').find('.panel-body').slideUp();
-        $this.addClass('panel-collapsed');
-        $this.removeClass('glyphicon-minus').addClass('glyphicon-plus');
-    } else {
-        $this.parents('.panel').find('.panel-body').slideDown();
-        $this.removeClass('panel-collapsed');
-        $this.removeClass('glyphicon-plus').addClass('glyphicon-minus');
-    }
-    */
-});
-
-$(document).on('focus', '.panel-footer input.chat_input', function (e) {
-    /*
-    var $this = $(this);
-    if ($('#minim_chat_window').hasClass('panel-collapsed')) {
-        $this.parents('.panel').find('.panel-body').slideDown();
-        $('#minim_chat_window').removeClass('panel-collapsed');
-        $('#minim_chat_window').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-    }
-    */
-});
-
 $('#btn-input').keyup(function(e){
     if(e.which === 13) {
         sendMessage();
     }
 });
 
+$('#msg_container').on('shown.bs.collapse', function (e) {
+    $('#collapseChatButton').text("-");
+    $('#notificationDivChat').html('');
+    updateNotificationChat();
+});
+
+$('#msg_container').on('hide.bs.collapse', function (e) {
+    $('#collapseChatButton').text("+");
+});
+
+var updateNotificationChat = function() {
+    if($('#msg_container').hasClass('show')) {
+        lastMessageRead = lastMessageReceived;
+    } else {
+        if (lastMessageRead !== lastMessageReceived) {
+            $('#notificationDivChat').html('<span class="badge badge-danger">!</span>');
+        }
+    }
+}
+
 var setMessages = function(array) {
+    if(array.length != 0) {
+        var lastElement = array[array.length - 1];
+        lastMessageReceived = lastElement.timestamp + lastElement.text;
+        console.log(lastElement.timestamp);
+    }
+    updateNotificationChat();
+
     clearMessages();
     array.forEach(function(element) {
         createMessage(element.playerID, element.text, element.timestamp)
@@ -49,6 +50,10 @@ var createMessage = function(playerId, text, datetime) {
         msgKind = "receive";
         author = "Little red shit";
     }
+    if(playerId === "admin") {
+        msgKind = "admin";
+        author = "Administrator";
+    }
 
     $('#msg_container_base').append(
         "<div class='row msg_container base_" + msgKind +"'>\n" +
@@ -64,7 +69,8 @@ var createMessage = function(playerId, text, datetime) {
 
 var sendMessage = function() {
     var input = $('#btn-input');
-    sendMessageText(input.val());
+    if(input.val())
+        sendMessageText(input.val());
     input.val('')
 };
 
@@ -82,18 +88,3 @@ var sendMessageText = function(text) {
         }
     });
 };
-
-/*
-<div class="row msg_container base_receive">
-    <div class="col-md-10 col-xs-10">
-        <div class="messages msg_receive">
-            <p>Ta mère</p>
-            <time datetime="2009-11-13T20:00">Anna • 51 min</time>
-        </div>
-    </div>
-</div>
- */
-
-
-
-

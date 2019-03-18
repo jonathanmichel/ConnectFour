@@ -67,3 +67,7 @@ a.btn{
     color:inherit;
     text-decoration: none;
 }
+
+.msg_admin {
+    float: left;
+}

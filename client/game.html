@@ -41,12 +41,14 @@
             <div class="emojiSelectorMenu" ></div>
         </div>
     </div>
+    
 
     <div class="container">
         <div class="row chat-window col-md-3" id="chat_window">
             <div class="card">
-                <div class="card-header" id="'chat_header">
-                    <a class="btn btn-info" data-toggle="collapse" href="#msg_container" role="button" aria-expanded="false">+</a> Chat
+                <div class="card-header" id="chat_header">
+                    <a class="btn btn-info" id="collapseChatButton" data-toggle="collapse" href="#msg_container" role="button" aria-expanded="false">+</a>
+                    Chat <div id="notificationDivChat" class="float-right"></div>
                 </div>
                 <div class="collapse" id="msg_container">
                     <div class="msg_container_base" id="msg_container_base">
@@ -76,6 +78,8 @@
             </div>
         </div>
     </div>
+    
+    
 
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"

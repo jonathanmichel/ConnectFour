@@ -13,7 +13,7 @@ var board = [['x','x','x','x','x','x','x'],
              ['x','x','x','x','x','x','x']]
 
 var lastPlayer
-
 var timerId
-
 var favicon
+var lastMessageRead = "";
+var lastMessageReceived = "";
