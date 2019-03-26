@@ -83,37 +83,37 @@ This script will
 ### Route available in the api
 Here are described all the actual [available](https://www.lucas-bonvin.com/) route of the RESTFULL server
 - Default
-    - ['/' default route](#-default-route)
+    - **['/' default route](#-default-route)**
 - Game mechanic
     - **[/createGame](#creategame)**
     - **[/joinGame/\<string:gameID>](#joingamestringgameid)**
-    - **[/quitGame/\<string:playerID>](quitGame)**
-    - **[/play/\<string:playerID>/\<int:row>](play)**
-    - **[/getGame/\<string:playerID>](getGame)**
-    - **[/setEmoji/\<string:playerID>/\<string:emojiCssRef>](setEmoji)**
-    - **[/resetGame/\<string:playerID>](resetGame)**
+    - **[/quitGame/\<string:playerID>](quitgamestringplayerid)**
+    - **[/play/\<string:playerID>/\<int:row>](playstringplayerid)**
+    - **[/getGame/\<string:playerID>](getgamestringplayerid)**
+    - **[/setEmoji/\<string:playerID>/\<string:emojiCssRef>](setemojistringplayerid)**
+    - **[/resetGame/\<string:playerID>](resetgamestringplayerid)**
 - Chat
-    - **[/chat \[POST\]](chat)**
-    - **[/chatAdmin \[POST\]](chatAdmin)**
+    - **[/chat \[POST\]](chat-post)**
+    - **[/chatAdmin \[POST\]](chatadmin-post)**
 - Statistics
-    - **[/getDataFromGames](getDataFromGames)**
-    - **[/getDataFromGamesCounterReset](getDataFromGamesCounterReset)**
+    - **[/getDataFromGames](getdatafromgames)**
+    - **[/getDataFromGamesCounterReset](getdatafromgamescounterreset)**
     - **[/getGraph/gameSessionPlayed](gameSessionPlayed)**
-    - **[/getGraph/graphStatistic/\<int:size>](graphStatistic)**
-    - **[/getGraph/gameSessionPlayedSVG](gameSessionPlayedSVG)**
-    - **[/getGraph/graphStatisticSVG/\<int:size>](graphStatisticSVG)**
-    - **[/getGraph/graphStatisticRaw/\<int:size>](graphStatisticRaw)**
+    - **[/getGraph/graphStatistic/\<int:size>](getgraphgraphstatisticintsize)**
+    - **[/getGraph/gameSessionPlayedSVG](getgraphgamesessionplayedsvg)**
+    - **[/getGraph/graphStatisticSVG/\<int:size>](getgraphgraphstatisticsvg)**
+    - **[/getGraph/graphStatisticRaw/\<int:size>](getgraphgraphstatisticraw)**
 - Get Board
-    - **[/getPngBoard/\<sting:gameID>](getPngBoard)**
-    - **[/getSvgBoard/\<sting:gameID>](getSvgBoard)**
+    - **[/getPngBoard/\<string:gameID>](getpngboardstringgameid)**
+    - **[/getSvgBoard/\<string:gameID>](getsvgboardstringgameid)**
 - Troll API
-    - **[/messUp/\<string:playerID>](messUp)**
-    - **[/copyEmoji/\<string:playerID>](copyEmoji)**
-    - **[/setBlankEmoji/\<string:playerID>](setBlankEmoji)**
-    - **[/setPoopEmoji/\<string:playerID>](setPoopEmoji)**
+    - **[/messUp/\<string:playerID>](messupstringplayerid)**
+    - **[/copyEmoji/\<string:playerID>](copyemojistringplayerid)**
+    - **[/setBlankEmoji/\<string:playerID>](setblankemojistringplayerid)**
+    - **[/setPoopEmoji/\<string:playerID>](setpoopemojistringplayerid)**
 - Deprecated 
-    - **[/getShittyEmojiGame](getShittyEmojiGame)**
-    - **[/game/\<int:row>](game)**
+    - **[/getShittyEmojiGame](getshittyemojigame)**
+    - **[/game/\<int:row>](gameintrow)**
 
 #### '/' default route
 Will redirect to this github page
@@ -297,12 +297,12 @@ Give the data of /getGraph/graphStatistic but in JSON format.
 	"meanPlayedGameToday": [0.6666666666666666,	1.0, 0.6666666666666666,	2.3333333333333335,	1.625]
 }
 ```
-### /getPngBoard/\<sting:gameID>
+### /getPngBoard/\<string:gameID>
 Will retrurn a simple image of the board designed by the game ID.
 
 ![pngBoard](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c9a2c6aee6eb05b1f45dd54/1553607787221/v8Ya9HULjj.png)
 
-### /getSvgBoard/\<sting:gameID>
+### /getSvgBoard/\<string:gameID>
 Same as getPngBoard but in svg Format.
 
 
