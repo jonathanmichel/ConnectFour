@@ -83,10 +83,10 @@ This script will
 ### Route available in the api
 Here are described all the actual [available](https://www.lucas-bonvin.com/) route of the RESTFULL server
 - Default
-    - **['/' default route](default-route)**
+    - ['/' default route](#-default-route)
 - Game mechanic
-    - **[/createGame](createGame)**
-    - **[/joinGame/\<string:gameID>](joinGame)**
+    - **[/createGame](#creategame)**
+    - **[/joinGame/\<string:gameID>](#joingamestringgameid)**
     - **[/quitGame/\<string:playerID>](quitGame)**
     - **[/play/\<string:playerID>/\<int:row>](play)**
     - **[/getGame/\<string:playerID>](getGame)**
