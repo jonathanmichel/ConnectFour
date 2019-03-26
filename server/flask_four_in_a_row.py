@@ -7,27 +7,16 @@ import os
 import random
 import pickle
 import GraphManager
-
-file_path = os.path.dirname(__file__)
-sys.path.insert(0, file_path)
-
+import requests
+import json
+from afterResponse import AfterResponse
 from flask import Flask, jsonify, Response, request, send_file, redirect
 from fourInARow import *
 from flask_cors import CORS
 
-app = Flask(__name__)
-cors = CORS(app)
-
-
-
-gamePickleFileName = "gamePickleFile"
-gameStatisticsPickleFileName = "gameStatisticsPickleFileName"
-
-whiteLargeSquare = "em-white_large_square"
-poop = "em-poop"
-
 class GameStatistics():
     def __init__(self):
+        self.version = "2.0.0"
         self.gameSinceStartup = 0
         self.gameToday = 0
 
@@ -41,6 +30,57 @@ class GameStatistics():
         self.meanPlayedGameToday = 0
         self.severOnline = datetime.today()
         self.severStart = datetime.today()
+
+        self.ipAddressToday = {}
+        self.ipLocationToday = {}
+        self.ipLocation = {}
+        self.ipRequestsNumberToday = {}
+        self.ipRequestsNumber = {}
+        self.ipQueue = []
+
+    def copyVersion1(self, orig):
+        self.gameSinceStartup = orig.gameSinceStartup
+        self.gameToday = orig.gameToday
+
+        self.gameKilled = orig.gameKilled
+        self.gameKilledToday = orig.gameKilledToday
+
+        self.gameKilledWithoutJoin = orig.gameKilledWithoutJoin
+        self.gameKilledWithoutJoinToday = orig.gameKilledWithoutJoinToday
+
+        self.meanPlayedGame = orig.meanPlayedGame
+        self.meanPlayedGameToday = orig.meanPlayedGameToday
+        self.severOnline = orig.severOnline
+        self.severStart = orig.severStart
+
+    def copyVersion2(self, orig):
+        self.copyVersion1(orig)
+
+        self.ipAddressToday = orig.ipAddressToday
+        self.ipLocationToday = orig.ipLocationToday
+        self.ipLocation = orig.ipLocation
+        self.ipQueue = orig.ipQueue
+
+    def copy(self, orig):
+        self.copyVersion2(orig)
+
+        self.ipRequestsNumberToday = orig.ipRequestsNumberToday
+        self.ipRequestsNumber = orig.ipRequestsNumber
+
+file_path = os.path.dirname(__file__)
+sys.path.insert(0, file_path)
+
+app = Flask(__name__)
+cors = CORS(app)
+AfterResponse(app)
+
+gamePickleFileName = "gamePickleFile"
+gameStatisticsPickleFileName = "gameStatisticsPickleFileName"
+
+storePath = '/home/lucblender/ConnectFour/server/'
+
+whiteLargeSquare = "em-white_large_square"
+poop = "em-poop"
 
 timeCheck = 60*5
 timeSleep = 4
@@ -71,7 +111,8 @@ else:
 
 if os.path.isfile(gameStatisticsPickleFileName) == True:
     try:
-        gameStatistics = pickle.load(open(gameStatisticsPickleFileName, 'rb'))
+        gameStatisticsFromFile = pickle.load(open(gameStatisticsPickleFileName, 'rb'))
+        gameStatistics.copy(gameStatisticsFromFile)
         if not isinstance(gameStatistics, GameStatistics):
             print("gameStatisticsPickleFileName File doesn't contain GameStatistics")
             gameStatistics = GameStatistics()
@@ -82,9 +123,7 @@ if os.path.isfile(gameStatisticsPickleFileName) == True:
 else:
     print("gameStatisticsPickleFileName File doesn't exist")
 
-
 gameStatistics.severStart = datetime.today()
-
 
 
 @app.route('/', strict_slashes=False)
@@ -296,6 +335,9 @@ def getDataFromGamesCounterReset():
     gameStatistics.gameKilledToday = 0
     gameStatistics.gameKilledWithoutJoinToday = 0
     gameStatistics.meanPlayedGameToday = 0
+    gameStatistics.ipAddressToday = {}
+    gameStatistics.ipLocationToday = {}
+    gameStatistics.ipRequestsNumberToday = {}
     pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     return tmp
 
@@ -325,6 +367,20 @@ def getGraphGameSessionPlayedSVGsize():
 def getGraphGraphStatisticSVG(size):
     GraphManager.graphStatistic(processDataFromGames(),size)
     return send_file('graphStatistic.svg', mimetype='image/svg+xml')
+
+@app.route('/getSvgBoard/<string:gameID>', strict_slashes=False)
+def getSvgBoard(gameID):
+    for game in gameArray:
+        if game.getGameId() == gameID:
+            game.createSvgBoard()
+    return send_file('svgBoard.svg', mimetype='image/svg+xml')
+
+@app.route('/getPngBoard/<string:gameID>', strict_slashes=False)
+def getPngBoard(gameID):
+    for game in gameArray:
+        if game.getGameId() == gameID:
+            game.createSvgBoard()
+    return send_file('svgBoard.png', mimetype='image/png')
 
 @app.route('/chat',methods=['POST'], strict_slashes=False)
 def chat():
@@ -394,6 +450,65 @@ def chatTest():
 @app.before_request
 def beforeRequest():
     gameTimeCheck()
+    ip = request.environ['HTTP_X_FORWARDED_FOR']
+    if "," in ip:
+        ip = ip.split(", ")[1]
+    gameStatistics.ipQueue.append(ip) #add the ip adress in the ip queue to be tested
+
+@app.after_response
+def after():
+    for ip in gameStatistics.ipQueue:
+        if gameStatistics.ipAddressToday.get(ip) == None:
+            url = "http://geoip-db.com/jsonp/"+ip
+            output = requests.get(url).text
+            output = output.replace("callback(","")
+            output = output.replace(")","")
+            jsonOutput = json.loads(output)
+            gameStatistics.ipAddressToday[ip] = jsonOutput
+            countryCodeIP = "None"
+            stateIP = "None"
+            if gameStatistics.ipAddressToday[ip]["country_code"] != None:
+                countryCodeIP = gameStatistics.ipAddressToday[ip]["country_code"]
+
+            if gameStatistics.ipAddressToday[ip]["state"] != None:
+                stateIP = gameStatistics.ipAddressToday[ip]["state"]
+
+            locationKey = countryCodeIP+" - "+stateIP
+
+            # count only new connection
+            if gameStatistics.ipLocationToday.get(locationKey) == None:
+                gameStatistics.ipLocationToday[locationKey] = 1
+            else:
+                gameStatistics.ipLocationToday[locationKey] += 1
+
+            if gameStatistics.ipLocation.get(locationKey) == None:
+                gameStatistics.ipLocation[locationKey] = 1
+            else:
+                gameStatistics.ipLocation[locationKey] += 1
+
+
+        countryCodeIP = "None"
+        stateIP = "None"
+        if gameStatistics.ipAddressToday[ip]["country_code"] != None:
+            countryCodeIP = gameStatistics.ipAddressToday[ip]["country_code"]
+
+        if gameStatistics.ipAddressToday[ip]["state"] != None:
+            stateIP = gameStatistics.ipAddressToday[ip]["state"]
+
+        locationKey = countryCodeIP+" - "+stateIP
+        #count every api request
+        if gameStatistics.ipRequestsNumberToday.get(locationKey) == None:
+            gameStatistics.ipRequestsNumberToday[locationKey] = 1
+        else:
+            gameStatistics.ipRequestsNumberToday[locationKey] += 1
+
+        if gameStatistics.ipRequestsNumber.get(locationKey) == None:
+            gameStatistics.ipRequestsNumber[locationKey] = 1
+        else:
+            gameStatistics.ipRequestsNumber[locationKey] += 1
+
+    gameStatistics.ipQueue = []
+
 
 def processDataFromGames():
     onlineGame = len(gameArray)
@@ -442,6 +557,10 @@ def processDataFromGames():
     listDic['gameKilledWithoutJoin'] = gameStatistics.gameKilledWithoutJoin
     listDic['meanPlayedGame'] = gameStatistics.meanPlayedGame
     listDic['meanPlayedGameToday'] = gameStatistics.meanPlayedGameToday
+    listDic['ipLocationToday'] = gameStatistics.ipLocationToday
+    listDic['ipLocation'] = gameStatistics.ipLocation
+    listDic['ipRequestsNumberToday'] = gameStatistics.ipRequestsNumberToday
+    listDic['ipRequestsNumber'] = gameStatistics.ipRequestsNumber
     pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     return listDic
 

@@ -21,14 +21,14 @@ Open *[game.html](https://github.com/jonathanmichel/ConnectFour/blob/master/clie
 
 **Invitation URL**
 
-    /game.html?gameId=<gameId>
+    /game.html?gameId=\<gameId>
 This link has to be sent to a friend to play with him. The web application provides a button to copy this url to the clipboard.
 
 **Game url**
 
 When a party is created/joined, user is automatically redirected to this url. This one allows user to reload game all he wants.
 
-	 /game.html?gameId=<gameId>&playerId=<playerId>
+	 /game.html?gameId=\<gameId>&playerId=\<playerId>
 	 
 ## Server
 
@@ -82,8 +82,40 @@ This script will
 
 ### Route available in the api
 Here are described all the actual [available](https://www.lucas-bonvin.com/) route of the RESTFULL server
+- Default
+    - **['/' default route](default-route)**
+- Game mechanic
+    - **[/createGame](createGame)**
+    - **[/joinGame/\<string:gameID>](joinGame)**
+    - **[/quitGame/\<string:playerID>](quitGame)**
+    - **[/play/\<string:playerID>/\<int:row>](play)**
+    - **[/getGame/\<string:playerID>](getGame)**
+    - **[/setEmoji/\<string:playerID>/\<string:emojiCssRef>](setEmoji)**
+    - **[/resetGame/\<string:playerID>](resetGame)**
+- Chat
+    - **[/chat \[POST\]](chat)**
+    - **[/chatAdmin \[POST\]](chatAdmin)**
+- Statistics
+    - **[/getDataFromGames](getDataFromGames)**
+    - **[/getDataFromGamesCounterReset](getDataFromGamesCounterReset)**
+    - **[/getGraph/gameSessionPlayed](gameSessionPlayed)**
+    - **[/getGraph/graphStatistic/\<int:size>](graphStatistic)**
+    - **[/getGraph/gameSessionPlayedSVG](gameSessionPlayedSVG)**
+    - **[/getGraph/graphStatisticSVG/\<int:size>](graphStatisticSVG)**
+    - **[/getGraph/graphStatisticRaw/\<int:size>](graphStatisticRaw)**
+- Get Board
+    - **[/getPngBoard/\<sting:gameID>](getPngBoard)**
+    - **[/getSvgBoard/\<sting:gameID>](getSvgBoard)**
+- Troll API
+    - **[/messUp/\<string:playerID>](messUp)**
+    - **[/copyEmoji/\<string:playerID>](copyEmoji)**
+    - **[/setBlankEmoji/\<string:playerID>](setBlankEmoji)**
+    - **[/setPoopEmoji/\<string:playerID>](setPoopEmoji)**
+- Deprecated 
+    - **[/getShittyEmojiGame](getShittyEmojiGame)**
+    - **[/game/\<int:row>](game)**
 
-#### '/'  default route
+#### '/' default route
 Will redirect to this github page
 
 #### /createGame
@@ -95,7 +127,7 @@ Create a new connect four [game](https://www.lucas-bonvin.com/), will return the
 }
 ```
 
-#### /joinGame/<string:gameID>
+#### /joinGame/\<string:gameID>
 Join an already existing connect four [game](https://www.lucas-bonvin.com/) by its gameID, will return the unique gameID and playerID in JSON format.
 ```
 {
@@ -104,10 +136,10 @@ Join an already existing connect four [game](https://www.lucas-bonvin.com/) by i
 }
 ```
 
-#### /quitGame/<string:playerID>
+#### /quitGame/\<string:playerID>
 Tell that a player quited a game. Michel can't implement [it](https://www.lucas-bonvin.com/) in his web app... So not used... But works though 
    
-#### /play/<string:playerID>/<int:row>
+#### /play/\<string:playerID>/\<int:row>
 Answer example formated in JSON
 Actual route to play the game, [need](https://www.lucas-bonvin.com/) to indicate which player is playing (0,1) and which row did he choose.
 
@@ -132,7 +164,7 @@ Example of answer formated in JSON if in case of error
 }
 ``` 
     
-#### /getGame/<string:playerID>
+#### /getGame/\<string:playerID>
 
 Example of answer [formated](https://www.lucas-bonvin.com/) in JSON
 ```
@@ -148,11 +180,11 @@ Example of answer [formated](https://www.lucas-bonvin.com/) in JSON
 }
 ``` 
 
-#### /setEmoji/<string:playerID>/<string:emojiCssRef>
+#### /setEmoji/\<string:playerID>/\<string:emojiCssRef>
 
 You can change the emoji of the player defined by its playerID and give the new Emoji you want to use by its ref in emojiCssRef defined by [Emoji CSS](https://afeld.github.io/emoji-css/).
     
-#### /resetGame/<string:playerID>
+#### /resetGame/\<string:playerID>
 
 Reset Game, no [answer](https://www.lucas-bonvin.com/)
 
@@ -178,37 +210,56 @@ Admin can send a message too in the chat of a specific game with a post request.
 I love statistics, so I added statistics! You can have data about the current online game, some overall statistics and statistics about today's game! Yeah I know pretty awesome!
 ```
 {
-	"gameIdList": {
-		"InP4o0YjGP": {
-			"isWin": 0,
-			"numberOfGame": 2,
-			"player0Status": true,
-			"player1Status": true,
-			"playersID": ["Xk4RqxPgfX",
-			"6llSrCv95M"]
-		},
-		"LjDUIkiDe7": {
-			"isWin": -1,
-			"numberOfGame": 1,
-			"player0Status": true,
-			"player1Status": false,
-			"playersID": ["No9FDm3UJB",
-			""]
+	gameIdList: {
+		Th9YWZFnjK: {
+			isWin: -1,
+			messages: [],
+			numberOfGame: 1,
+			player0Emoji: "em-butterfly",
+			player0Status: true,
+			player1Emoji: "em-bulb",
+			player1Status: true,
+			playersID: ["wNGpenPFTo",
+			"clfGkjvGQF"]
 		}
 	},
-	"gameKilled": 19,
-	"gameKilledToday": 2,
-	"gameKilledWithoutJoin": 12,
-	"gameKilledWithoutJoinToday": 1,
-	"gameSinceStartup": 21,
-	"gameToday": 4,
-	"meanPlayedGame": 0.8421052631578947,
-	"meanPlayedGameToday": 2.0,
-	"offlinePlayer": 1,
-	"onlineGame": 2,
-	"onlinePlayer": 3,
-	"severOnline": "2018-12-26 18:22:37.716929",
-	"severStart": "2018-12-26 23:07:34.627688"
+	gameKilled: 170,
+	gameKilledToday: 1,
+	gameKilledWithoutJoin: 71,
+	gameKilledWithoutJoinToday: 0,
+	gameSinceStartup: 171,
+	gameToday: 2,
+	ipLocation: {
+		-: 1,
+		CH-Bern: 3,
+		CH-None: 1,
+		CH-Valais: 4,
+		US-None: 4,
+		US-Virginia: 2
+	},
+	ipLocationToday: {
+		CH-Bern: 1,
+		CH-Valais: 1,
+		US-None: 2,
+		US-Virginia: 1
+	},
+	ipRequestsNumber: {
+		CH-Bern: 895,
+		CH-Valais: 3031,
+		US-None: 2
+	},
+	ipRequestsNumberToday: {
+		CH-Bern: 895,
+		CH-Valais: 3031,
+		US-None: 2
+	},
+	meanPlayedGame: 1.147058823529412,
+	meanPlayedGameToday: 1,
+	offlinePlayer: 0,
+	onlineGame: 1,
+	onlinePlayer: 2,
+	severOnline: "2018-12-26 18:22:37.716929",
+	severStart: "2019-03-26 13:15:43.287277"
 }
 ```
     
@@ -222,7 +273,7 @@ the gameSessionPlayed graph give you the mean of played session overall, the mea
 
 ![gameSessionPlayed](https://lucblender.pythonanywhere.com/getGraph/gameSessionPlayed) 
     
-#### /getGraph/graphStatistic/<int:size>
+#### /getGraph/graphStatistic/\<int:size>
 The software store everyday the output of ```/getDataFromGames``` and so, with ``` /getGraph/graphStatistic ```, you can have a graph of some of those statistics in function of the time. The size parameter is to restrain the amount of data you will get. If size = 0, will get all the data stored (not the best thing to do).
 
 ![graphStatistic](https://lucblender.pythonanywhere.com/getGraph/graphStatistic/10) 
@@ -231,10 +282,10 @@ The software store everyday the output of ```/getDataFromGames``` and so, with `
 #### /getGraph/gameSessionPlayedSVG
 Same result as /getGraph/gameSessionPlayed but in SVG.
 
-#### /getGraph/graphStatisticSVG/<int:size>
+#### /getGraph/graphStatisticSVG/\<int:size>
 Same result as /getGraph/graphStatistic but in SVG.
 
-#### /getGraph/graphStatisticRaw/<int:size>
+#### /getGraph/graphStatisticRaw/\<int:size>
 Give the data of /getGraph/graphStatistic but in JSON format.
 
 ```
@@ -246,18 +297,26 @@ Give the data of /getGraph/graphStatistic but in JSON format.
 	"meanPlayedGameToday": [0.6666666666666666,	1.0, 0.6666666666666666,	2.3333333333333335,	1.625]
 }
 ```
+### /getPngBoard/\<sting:gameID>
+Will retrurn a simple image of the board designed by the game ID.
 
-#### /messUp/<string:playerID>
+![pngBoard](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c9a2c6aee6eb05b1f45dd54/1553607787221/v8Ya9HULjj.png)
+
+### /getSvgBoard/\<sting:gameID>
+Same as getPngBoard but in svg Format.
+
+
+#### /messUp/\<string:playerID>
 Will fill randomly the game of a player aimed by it's playerID.
 
 
-#### /copyEmoji/<string:playerID>
+#### /copyEmoji/\<string:playerID>
 The player with the id playerID will have the same emoji as its opponent
 
-#### /setBlankEmoji/<string:playerID>
+#### /setBlankEmoji/\<string:playerID>
 You can guess what will this one do. Yes blank emoji is the same emoji as the grid, oups. :white_large_square:
 
-#### /setPoopEmoji/<string:playerID>
+#### /setPoopEmoji/\<string:playerID>
 You can guess what will this one do too. :poop:
 
 #### /getShittyEmojiGame
@@ -267,7 +326,7 @@ Shitty example version of the [connect](https://www.lucas-bonvin.com/) four boar
 
 ![First UI](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c1b5a451ae6cf51a5dcdce9/1545296456474/firstUI.PNG) First UI, never forget :heart:
 
-#### /game/<int:row>
+#### /game/\<int:row>
 Deprecated version of the ```/play``` (see above). Is switching [between](https://www.lucas-bonvin.com/) player automatically and same output as ```/getShittyEmojiGame``` 
 
 

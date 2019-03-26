@@ -6,6 +6,8 @@ import string
 import time
 from datetime import datetime
 from pytz import timezone
+import svgwrite
+import cairosvg
 
 class Token(Enum):
     PLAYER0 = 0
@@ -17,10 +19,12 @@ class messageChat():
     def __init__(self, text, playerID):
         self.playerID = playerID
         self.text  = text
-        self.timestamp = datetime.now(timezone('Europe/Zurich')).strftime('%H:%M%S')
+        self.timestamp = datetime.now(timezone('Europe/Zurich')).strftime('%H:%M:%S')
 
 height, width = 6, 7
 DELAY_PLAYER_DEAD = 10
+radiusSvgCircle = 20
+storePath = '/home/lucblender/ConnectFour/server/'
 
 emCssSampleList = ["em-mahjong","em-candy","em-butterfly","em-sparkles","em-aquarius","em-popcorn","em-recycle","em-symbols","em-telephone_receiver","em-bicyclist","em-dizzy_face","em-airplane","em-bulb","em-burrito"]
 
@@ -78,7 +82,7 @@ class Game():
         self.__player = random.randint(0,1)
         self.__tokenWhoWin = -1
         self.__numberOfGame = self.__numberOfGame +1
-        
+
     def randomGrid(self):
         self.__grid = [[Token(random.randrange(-1,2)) for x in range(height)] for y in range(width)]
 
@@ -213,9 +217,6 @@ class Game():
                            self.__grid[row+2][col] = Token.WIN
                            self.__grid[row+3][col] = Token.WIN
                            self.__tokenWhoWin = toReturn
-                           print("a")
-                           print(row)
-                           print(col)
                            return toReturn
                 except:
                     tmp = 1
@@ -227,9 +228,6 @@ class Game():
                            self.__grid[row][col+2] = Token.WIN
                            self.__grid[row][col+3] = Token.WIN
                            self.__tokenWhoWin = toReturn
-                           print("b")
-                           print(row)
-                           print(col)
                            return toReturn
                 except:
                     tmp = 1
@@ -241,9 +239,6 @@ class Game():
                            self.__grid[row+2][col+2] = Token.WIN
                            self.__grid[row+3][col+3] = Token.WIN
                            self.__tokenWhoWin = toReturn
-                           print("c")
-                           print(row)
-                           print(col)
                            return toReturn
                 except:
                     tmp = 1
@@ -255,9 +250,6 @@ class Game():
                            self.__grid[row-2][col+2] = Token.WIN
                            self.__grid[row-3][col+3] = Token.WIN
                            self.__tokenWhoWin = toReturn
-                           print("d")
-                           print(row)
-                           print(col)
                            return toReturn
                 except:
                     tmp = 1
@@ -337,13 +329,13 @@ class Game():
             return True
         else:
             return False
-            
+
     def isPlayer0(self, testPlayerID):
         if testPlayerID == self.__player0ID:
             return True
         else:
-            return False    
-            
+            return False
+
     def isPlayer1(self, testPlayerID):
         if testPlayerID == self.__player1ID:
             return True
@@ -380,7 +372,7 @@ class Game():
 
     def setPlayer1Emoji(self, value):
         self.__emojiP1 = value
-            
+
     def getPlayer0Emoji(self):
         return self.__emojiP0
 
@@ -413,6 +405,27 @@ class Game():
     def printEmoji(self):
         self.__time = time.time()
         print(self.emojiText())
+
+    def createSvgBoard(self):
+        dwg = svgwrite.Drawing(storePath+'svgBoard.svg', profile='tiny', size =(radiusSvgCircle*width*2,radiusSvgCircle*height*2))
+
+        for w in range(0,width):
+            for h in range(0,height):
+                color = "grey"
+                if self.__grid[w][h] == Token.PLAYER0:
+                    color = svgwrite.utils.rgb(237,83,56)
+                elif self.__grid[w][h] == Token.PLAYER1:
+                    color = svgwrite.utils.rgb(237,255,28)
+                elif self.__grid[w][h] == Token.WIN:
+                    if self.isWin() == 0:
+                        color = svgwrite.utils.rgb(206,43,14)
+                    elif self.isWin() == 1:
+                        color = svgwrite.utils.rgb(184,196,56)
+
+                dwg.add(dwg.circle((radiusSvgCircle*2*w+radiusSvgCircle,radiusSvgCircle*2*(height-1-h)+radiusSvgCircle),r=radiusSvgCircle,fill=color))
+
+        dwg.save()
+        cairosvg.svg2png(url=storePath+'svgBoard.svg', write_to=storePath+'svgBoard.png')
 
 
 
