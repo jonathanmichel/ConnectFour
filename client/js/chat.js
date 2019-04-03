@@ -54,13 +54,38 @@ var createMessage = function(playerId, text, datetime) {
         msgKind = "admin";
         author = "Administrator";
     }
+	let today = new Date();
+	let hourNow = today.getHours();
+	let minNow = today.getMinutes();
+	let secNow = today.getSeconds();
+	
+    let hour = parseInt(datetime);
+    let min = datetime.substring(3,5);
+    let sec = datetime.substring(6,8);
+	
+	let deltaHour = hourNow-hour;
+	let deltaMin = minNow-min;
+	let deltaSec = secNow-sec;
+	
+	let timeStampToShow = ""
+	
+	if(deltaHour === 0 && deltaMin === 0)
+		timeStampToShow = "A few seconds ago"	
+	else if(deltaHour === 0 && deltaMin === 1)
+		timeStampToShow = deltaMin+" minute ago"
+	else if(deltaHour === 0 && deltaMin !== 0)
+		timeStampToShow = deltaMin+" minutes ago"	
+	else if(deltaHour === 1)
+		timeStampToShow = deltaHour+" hour ago"
+	else if(deltaHour !== 0)
+		timeStampToShow = deltaHour+" hours ago"
 
     $('#msg_container_base').append(
         "<div class='row msg_container base_" + msgKind +"'>\n" +
         "    <div class='col-md-10 col-xs-10'>\n" +
         "        <div class='messages message_" + msgKind + "'>\n" +
         "            <p>" + text + "</p>\n" +
-        "            <time datetime='" + datetime + "'>" + author + " • <span class='time_elapsed'>51 min</span></time>\n" +
+        "            <time datetime='" + datetime + "'>" + author + " • <span class='time_elapsed'>"+timeStampToShow+"</span></time>\n" +
         "        </div>\n" +
         "    </div>\n" +
         "</div>");
