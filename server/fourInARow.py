@@ -8,6 +8,7 @@ from datetime import datetime
 from pytz import timezone
 import svgwrite
 import cairosvg
+from copy import deepcopy
 
 class Token(Enum):
     PLAYER0 = 0
@@ -28,14 +29,33 @@ storePath = '/home/lucblender/ConnectFour/server/'
 
 emCssSampleList = ["em-mahjong","em-candy","em-butterfly","em-sparkles","em-aquarius","em-popcorn","em-recycle","em-symbols","em-telephone_receiver","em-bicyclist","em-dizzy_face","em-airplane","em-bulb","em-burrito"]
 
+class Token(Enum):
+    PLAYER0 = 0
+    PLAYER1 = 1
+    WIN = 3
+    EMPTY = -1
+
+
 class Game():
 
-    def __init__(self, player):
+    nodes = {}
+
+    def __init__(self, player=0, other=None):
         self.__gameID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
         self.__player0ID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
         self.__player1ID = ""
         self.__player0Quit = False
         self.__player1Quit = False
+        self.empty = Token.EMPTY
+        self.__AI = False
+        
+        if player == 0:
+            self.player = Token.PLAYER0
+            self.opponent = Token.PLAYER1
+        else:
+            self.player = Token.PLAYER1
+            self.opponent = Token.PLAYER0 
+        
         self.__player = player
         self.__numberQuit = 0
         self.__grid = [[Token.EMPTY for x in range(height)] for y in range(width)]
@@ -51,7 +71,12 @@ class Game():
             index2 = random.randrange(0,14)
 
         self.__emojiP0 = emCssSampleList[index1]
-        self.__emojiP1 = emCssSampleList[index2]
+        self.__emojiP1 = emCssSampleList[index2]        
+        print("other"+str(other))
+        if other:
+            print("other")
+            self.__dict__ = deepcopy(other.__dict__)
+            print(self.player)
 
     def addMessage(self, text, playerID):
         if len(self.__chat)>19:
@@ -76,10 +101,25 @@ class Game():
             return self.__player1ID
         else:
             return "NO PLAYER"
+        
+    
+    def getOpponentPlayerID(self, id):
+        if id == self.__player0ID:
+            return self.__player1ID
+        elif id == self.__player1ID:
+            return self.__player0ID
+        else:
+            return "NO PLAYER"
 
     def reset(self):
         self.__grid = [[Token.EMPTY for x in range(height)] for y in range(width)]
-        self.__player = random.randint(0,1)
+        player = random.randint(0,1)
+        if player == 0:
+            self.player = Token.PLAYER0
+            self.opponent = Token.PLAYER1
+        else:
+            self.player = Token.PLAYER1
+            self.opponent = Token.PLAYER0     
         self.__tokenWhoWin = -1
         self.__numberOfGame = self.__numberOfGame +1
 
@@ -99,21 +139,13 @@ class Game():
         return self.__numberOfGame
 
     def setToken(self, line):
-        if self.__player == 0:
-            token = Token.PLAYER0
-        else:
-            token = Token.PLAYER1
-
         if line > width or line < 0:
             return False
         else:
             for w in range(0,height):
                 if self.__grid[line][w] == Token.EMPTY:
-                    self.__grid[line][w] = token
-                    if self.__player == 0:
-                        self.__player = 1
-                    else:
-                        self.__player = 0
+                    self.__grid[line][w] = self.player
+                    self.player,self.opponent = self.opponent,self.player
                     return True
             return False
 
@@ -124,17 +156,13 @@ class Game():
         if self.isWin() != -1:
             listDic["ERROR"] = "SOMEBODY WON DAMMIT, STOP PLAYING"
             return jsonify(listDic)
-        if self.__player == 0 and player != self.__player0ID:
+        #TODO CHANGED
+        if self.player.value == 0 and player != self.__player0ID:
             listDic["ERROR"] = "NOT YOUR TURN"
             return jsonify(listDic)
-        if self.__player == 1 and player != self.__player1ID:
+        if self.player.value == 1 and player != self.__player1ID:
             listDic["ERROR"] = "NOT YOUR TURN"
             return jsonify(listDic)
-
-        if self.__player == 0:
-            token = Token.PLAYER0
-        else:
-            token = Token.PLAYER1
 
         if line > width or line < 0:
             listDic["ERROR"] = "TOKEN OUT OF GRID"
@@ -142,17 +170,15 @@ class Game():
         else:
             for w in range(0,height):
                 if self.__grid[line][w] == Token.EMPTY:
-                    self.__grid[line][w] = token
-                    if self.__player == 0:
-                        self.__player = 1
-                    else:
-                        self.__player = 0
+                    self.__grid[line][w] = self.player
+                    self.player,self.opponent = self.opponent,self.player
+                    
                     if player == self.__player0ID:
                         listDic['id'] = '0'
                     else:
                         listDic['id'] = '1'
                     listDic['grid'] = self.text()
-                    listDic['currentPlayer'] = str(self.__player)
+                    listDic['currentPlayer'] = str(self.player.value)
                     listDic['isWin'] = str(self.isWin())
                     listDic['player0Status'] = self.getPlayer0Status()
                     listDic['player1Status'] = self.getPlayer1Status()
@@ -172,7 +198,7 @@ class Game():
             else:
                 listDic['id'] = '1'
             listDic['grid'] = self.text()
-            listDic['currentPlayer'] = str(self.__player)
+            listDic['currentPlayer'] = str(self.player.value)
             listDic['isWin'] = str(self.isWin())
             listDic['player0Status'] = self.getPlayer0Status()
             listDic['player1Status'] = self.getPlayer1Status()
@@ -192,6 +218,9 @@ class Game():
 
     def getPlayer1Status(self):
         return (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
+        
+    def getAI(self):
+        return self.__AI
 
 
     def isWin(self):
@@ -288,7 +317,7 @@ class Game():
         else:
             listDic['id'] = '1'
         listDic['grid'] = self.text()
-        listDic['currentPlayer'] = str(self.__player)
+        listDic['currentPlayer'] = str(self.player.value)
         listDic['isWin'] = str(self.isWin())
         listDic['player0Status'] = self.getPlayer0Status()
         listDic['player1Status'] = self.getPlayer1Status()
@@ -426,6 +455,268 @@ class Game():
 
         dwg.save()
         cairosvg.svg2png(url=storePath+'svgBoard.svg', write_to=storePath+'svgBoard.png')
+    
+    #AI PART
+    def move(self,x):
+        board = Game(other=self)
+        for y in range(height):
+            if board.__grid[x][y] == board.empty:
+                board.__grid[x][y] = board.player
+                break
+        board.player,board.opponent = board.opponent,board.player
+        return board
+ 
+    def __heuristic(self):
+        return self.__heuristic_score(self.player)-self.__heuristic_score(self.opponent)
+ 
+    def __heuristic_score(self, player):
+        lines = self.__winlines(player)
+        winpositions = self.__winpositions(lines,player)
+        score = 0
+        for x in range(width):
+            for y in range(height-1,0,-1):
+                win = winpositions.get("{0},{1}".format(x,y),False)
+                below = winpositions.get("{0},{1}".format(x,y-1),False)
+                if win and below:
+                    score+=height-y*100
+        for line in lines:
+            pieces = 0
+            heights = []
+            for x,y in line:
+                if self.__grid[x][y] == player:
+                    pieces = pieces + 1
+                elif self.__grid[x][y] == self.empty:
+                    heights.append(y)
+            heightscore = height - int(sum(heights) / float(len(heights)))
+            score=score+pieces*heightscore
+        return score
+ 
+    def __winpositions(self, lines, player):
+        lines = self.__winlines(player)
+        winpositions = {}
+        for line in lines:
+            pieces = 0
+            empty = None
+            for x,y in line:
+                if self.__grid[x][y] == player:
+                    pieces = pieces + 1
+                elif self.__grid[x][y] == self.empty:
+                    if not empty == None:
+                        break
+                    empty = (x,y)
+            if pieces==3:
+                winpositions["{0},{1}".format(x,y)]=True
+        return winpositions
+ 
+    def __winlines(self, player):
+        lines = []
+        # horizontal
+        for y in range(height):
+            winning = []
+            for x in range(width):
+                if self.__grid[x][y] == player or self.__grid[x][y] == self.empty:
+                    winning.append((x,y))
+                    if len(winning) >= 4:
+                        lines.append(winning[-4:])
+                else:
+                    winning = []
+        # vertical
+        for x in range(width):
+            winning = []
+            for y in range(height):
+                if self.__grid[x][y] == player or self.__grid[x][y] == self.empty:
+                    winning.append((x,y))
+                    if len(winning) >= 4:
+                        lines.append(winning[-4:])
+                else:
+                    winning = []
+        # diagonal
+        winning = []
+        for cx in range(width-1):
+            sx,sy = max(cx-2,0),abs(min(cx-2,0))
+            winning = []
+            for cy in range(height):
+                x,y = sx+cy,sy+cy
+                if x<0 or y<0 or x>=width or y>=height:
+                    continue
+                if self.__grid[x][y] == player or self.__grid[x][y] == self.empty:
+                    winning.append((x,y))
+                    if len(winning) >= 4:
+                        lines.append(winning[-4:])
+                else:
+                    winning = []
+        # other diagonal
+        winning = []
+        for cx in range(width-1):
+            sx,sy = width-1-max(cx-2,0),abs(min(cx-2,0))
+            winning = []
+            for cy in range(height):
+                x,y = sx-cy,sy+cy
+                if x<0 or y<0 or x>=width or y>=height:
+                    continue
+                if self.__grid[x][y] == player or self.__grid[x][y] == self.empty:
+                    winning.append((x,y))
+                    if len(winning) >= 4:
+                        lines.append(winning[-4:])
+                else:
+                    winning = []
+        # return
+        return lines
+ 
+    def __iterative_deepening(self,think):
+        g = (3,None)
+        start = time.time()
+        for d in range(1,10):
+            g = self.__mtdf(g, d)
+            print(time.time()-start>think)
+            if time.time()-start>think:
+                print("break")
+                break
+        return g;
+ 
+    def __mtdf(self, g, d):
+        upperBound = +1000
+        lowerBound = -1000
+        best = g
+        while lowerBound < upperBound:
+            if g[0] == lowerBound:
+                beta = g[0]+1
+            else:
+                beta = g[0]
+            g = self.__minimax(True, d, beta-1, beta)
+            if g[1]!=None:
+                best = g
+            if g[0] < beta:
+                upperBound = g[0]
+            else:
+                lowerBound = g[0]
+        return best
+ 
+    def __minimax(self, player, depth, alpha, beta):
+        lower = Game.nodes.get(str(self)+str(depth)+'lower',None)
+        upper = Game.nodes.get(str(self)+str(depth)+'upper',None)
+        if lower != None:
+            if lower >= beta:
+                return (lower,None)
+            alpha = max(alpha,lower)
+        if upper != None:
+            if upper <= alpha:
+                return (upper,None)
+            beta = max(beta,upper)
+        if self.won():
+            if player:
+                return (-999,None)
+            else:
+                return (+999,None)
+        elif self.tied():
+            return (0,None)
+        elif depth==0:
+            return (self.__heuristic(),None)
+        elif player:
+            best = (alpha,None)
+            for x in range(width):
+                if self.__grid[x][height-1]==self.empty:
+                    value = self.move(x).__minimax(not player,depth-1,best[0],beta)[0]
+                    if value>best[0]:
+                        best = value,x
+                    if value>beta:
+                        break
+        else:
+            best = (beta,None)
+            for x in range(width):
+                if self.__grid[x][height-1]==self.empty:
+                    value = self.move(x).__minimax(not player,depth-1,alpha,best[0])[0]
+                    if value<best[0]:
+                        best = value,x
+                    if alpha>value:
+                        break
+        if best[0] <= alpha:
+            Game.nodes[str(self)+str(depth)+"upper"] = best[0]
+            Game.nodes[self.__mirror()+str(depth)+"upper"] = best[0]
+        elif best[0] >= beta:
+            Game.nodes[str(self)+str(depth)+"lower"] = best[0]
+            Game.nodes[self.__mirror()+str(depth)+"lower"] = best[0]
+        return best
+ 
+    def best(self):
+        return self.__iterative_deepening(2)[1]
+ 
+    def tied(self):
+        for x in range(width):      
+                for y in range(height):
+                    if self.__grid[x][y]==self.empty:
+                        return False
+        return True
+ 
+    def won(self):
+        # horizontal
+        for y in range(height):
+            winning = []
+            for x in range(width):
+                if self.__grid[x][y] == self.opponent:
+                    winning.append((x,y))
+                    if len(winning) == 4:
+                        return winning
+                else:
+                    winning = []
+        # vertical
+        for x in range(width):
+            winning = []
+            for y in range(height):
+                if self.__grid[x][y] == self.opponent:
+                    winning.append((x,y))
+                    if len(winning) == 4:
+                        return winning
+                else:
+                    winning = []
+        # diagonal
+        winning = []
+        for cx in range(width-1):
+            sx,sy = max(cx-2,0),abs(min(cx-2,0))
+            winning = []
+            for cy in range(height):
+                x,y = sx+cy,sy+cy
+                if x<0 or y<0 or x>=width or y>=height:
+                    continue
+                if self.__grid[x][y] == self.opponent:
+                    winning.append((x,y))
+                    if len(winning) == 4:
+                        return winning
+                else:
+                    winning = []
+        # other diagonal
+        winning = []
+        for cx in range(width-1):
+            sx,sy = width-1-max(cx-2,0),abs(min(cx-2,0))
+            winning = []
+            for cy in range(height):
+                x,y = sx-cy,sy+cy
+                if x<0 or y<0 or x>=width or y>=height:
+                    continue
+                if self.__grid[x][y] == self.opponent:
+                    winning.append((x,y))
+                    if len(winning) == 4:
+                        return winning
+                else:
+                    winning = []
+        # default
+        return None
+ 
+    def __mirror(self):
+        string = ''
+        for y in range(height):
+            for x in range(width):
+                string+=' '+self.__grid[width-1-x][height-1-y].name
+            string+="\n"
+        return string
+ 
+    def __str__(self):
+        string = ''
+        for y in range(height):
+            for x in range(width):
+                string+=' '+self.__grid[x][height-1-y].name
+            string+="\n"
+        return string
 
 
 

@@ -82,6 +82,8 @@ storePath = '/home/lucblender/ConnectFour/server/'
 whiteLargeSquare = "em-white_large_square"
 poop = "em-poop"
 
+gameQueueAI = []
+
 timeCheck = 60*5
 timeSleep = 4
 
@@ -183,6 +185,12 @@ def playRow(playerID,row):
     for game in gameArray:
         if game.isPlayer(playerID) == True:
             tmp = game.setPlayToken(playerID,row)
+            if game.getAI() == True: 
+                move = game.best()
+                if move!=None:
+                    print("move"+str(move))
+                    game.setPlayToken(game.getOpponentPlayerID(playerID),move)
+               
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
     listDic = {}
