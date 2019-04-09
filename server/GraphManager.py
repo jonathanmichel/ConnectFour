@@ -8,6 +8,7 @@ import datetime
 import numpy as np
 
 mypath = '/home/lucblender/ConnectFour/server/ConnectFourStats/'
+storePath = '/home/lucblender/ConnectFour/server/'
 
 
 def graphStatistic(dict=None, dataSize=0):
@@ -80,8 +81,8 @@ def graphStatistic(dict=None, dataSize=0):
     ax.grid()
 
 
-    fig.savefig("/home/lucblender/ConnectFour/server/graphStatistic.png")
-    fig.savefig("/home/lucblender/ConnectFour/server/graphStatistic.svg")
+    fig.savefig(storePath+"graphStatistic.png")
+    fig.savefig(storePath+"graphStatistic.svg")
 
 def graphStatisticRaw(dict=None, dataSize=0):
     if dict != None:
@@ -156,6 +157,6 @@ def gameSessionPlayed(dict):
         ax.text(v+0.05 , i , str(v), color='black')
 
     plt.tight_layout()
-    fig.savefig("/home/lucblender/ConnectFour/server/gameSessionPlayed.png")
-    fig.savefig("/home/lucblender/ConnectFour/server/gameSessionPlayed.svg")
+    fig.savefig(storePath+"gameSessionPlayed.png")
+    fig.savefig(storePath+"/gameSessionPlayed.svg")
 

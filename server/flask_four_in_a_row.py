@@ -10,7 +10,7 @@ import GraphManager
 import requests
 import json
 from afterResponse import AfterResponse
-from flask import Flask, jsonify, Response, request, send_file, redirect
+from flask import Flask, jsonify, Response, request, send_file, redirect, stream_with_context
 from fourInARow import *
 from flask_cors import CORS
 
@@ -132,6 +132,32 @@ gameStatistics.severStart = datetime.today()
 def homeRedirect():
     return redirect("http://github.com/jonathanmichel/connectFour", code=302)
 
+@app.route('/stream')
+def main():
+    return '''<div>start</div>
+    <script>
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/test', true);
+        xhr.onreadystatechange = function(e) {
+            var div = document.createElement('div');
+            div.innerHTML = '' + this.readyState + ':' + this.responseText;
+            document.body.appendChild(div);
+        };
+        xhr.send();
+    </script>
+    '''
+
+@app.route('/test')
+def test():
+    def generate():
+        app.logger.info('request started')
+        for i in range(5):
+            time.sleep(1)
+            yield str(i)
+        app.logger.info('request finished')
+        yield ''
+    return Response(stream_with_context(generate()))
+
 @app.route('/createGame', strict_slashes=False)
 def createGame():
     newGame = Game(random.randint(0,1))
@@ -185,12 +211,12 @@ def playRow(playerID,row):
     for game in gameArray:
         if game.isPlayer(playerID) == True:
             tmp = game.setPlayToken(playerID,row)
-            if game.getAI() == True: 
+            if game.getAI() == True:
                 move = game.best()
                 if move!=None:
                     print("move"+str(move))
                     game.setPlayToken(game.getOpponentPlayerID(playerID),move)
-               
+
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
     listDic = {}
@@ -329,6 +355,24 @@ def messUp(playerID):
     tmp.headers['Access-Control-Allow-Origin'] = '*'
     return tmp
 
+
+@app.route('/setAI/<string:gameID>/<int:enable>', strict_slashes=False)
+def setAI(gameID, enable):
+    tmp = {}
+    for game in gameArray:
+        if game.getGameId() == gameID:
+            game.setAI(bool(enable))
+
+            tmp['Success'] = gameID+" game AI set to "+str(bool(enable))
+            tmp = jsonify(tmp)
+            tmp.headers['Access-Control-Allow-Origin'] = '*'
+            return tmp
+    tmp['ERROR'] = "GameID has no Game Assigned"
+
+    tmp = jsonify(tmp)
+    tmp.headers['Access-Control-Allow-Origin'] = '*'
+    return tmp
+
 @app.route('/getDataFromGames', strict_slashes=False)
 def getDataFromGames():
     tmp = jsonify(processDataFromGames())
@@ -463,6 +507,7 @@ def beforeRequest():
         ip = ip.split(", ")[1]
     gameStatistics.ipQueue.append(ip) #add the ip adress in the ip queue to be tested
 
+
 @app.after_response
 def after():
     for ip in gameStatistics.ipQueue:
@@ -595,7 +640,7 @@ def gameTimeCheck():
             nGamePlayed = game.getNumberOfGame()
             gameStatistics.gameKilled = gameStatistics.gameKilled +1
             gameStatistics.gameKilledToday = gameStatistics.gameKilledToday + 1
-            if game.getPlayerID(1) == "":
+            if game.getJoined() == False:
                 gameStatistics.gameKilledWithoutJoin = gameStatistics.gameKilledWithoutJoin + 1
                 gameStatistics.gameKilledWithoutJoinToday = gameStatistics.gameKilledWithoutJoinToday +1
                 nGamePlayed = 0
@@ -618,6 +663,6 @@ if __name__ == '__main__':
         file_handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
         app.logger.addHandler(file_handler)
 
-        app.run(host='::', port = 5002, debug=False, use_reloader=False)
+        app.run(host='::', port = 5002, debug=False, use_reloader=False, threaded = True)
     except KeyboardInterrupt:
         print("end of game rest server")

@@ -34,18 +34,23 @@ When a party is created/joined, user is automatically redirected to this url. Th
 
 ### Prerequisites
 
-The server and server launch automatisation script are made with python, python 3 is needed and since some library are used, pip3 is also needed.
+The server and server launch automatisation script are made with python, python 3 is needed and since some library are used, pip3 is also needed. Finally for cairosvg (python lib see above) we need to install libcairo2-dev.
 ```
 sudo apt-get install python3
 sudo apt-get install python3-pip
+sudo apt-get install libcairo2-dev
 ```
 
-The python dependency are flask (rest server), flask-cors (the api is compatible with CORS (Cross Origin Resource Sharing)) and emoji(old GUI but keep it for nostalgia) and matplotlib (statistics plot of the game).
+The python dependency are flask (rest server), flask-cors (the api is compatible with CORS (Cross Origin Resource Sharing)) and emoji(old GUI but keep it for nostalgia), matplotlib (statistics plot of the game), pytz (timezone for python), svgwrite (cause we do svg yes), cairocffi (for cairosvg) and cairosvg (we still do svg yes).
 ```
 sudo pip3 install flask
 sudo pip3 install emoji
 sudo pip3 install matplotlib
 sudo pip3 install flask-cors
+sudo pip3 install pytz
+sudo pip3 install svgwrite
+sudo pip3 install cairocffi
+sudo pip3 install cairosvg
 ```
 
 If you want to test your server on the web and not only in local, you can use ngrok or serveo, the use of those are described above. To install ngrok follow the instruction here: https://ngrok.com/download. 

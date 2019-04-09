@@ -43,19 +43,20 @@ class Game():
     def __init__(self, player=0, other=None):
         self.__gameID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
         self.__player0ID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
-        self.__player1ID = ""
+        self.__player1ID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
+        self.__joined = False
         self.__player0Quit = False
         self.__player1Quit = False
         self.empty = Token.EMPTY
         self.__AI = False
-        
+
         if player == 0:
             self.player = Token.PLAYER0
             self.opponent = Token.PLAYER1
         else:
             self.player = Token.PLAYER1
-            self.opponent = Token.PLAYER0 
-        
+            self.opponent = Token.PLAYER0
+
         self.__player = player
         self.__numberQuit = 0
         self.__grid = [[Token.EMPTY for x in range(height)] for y in range(width)]
@@ -71,12 +72,9 @@ class Game():
             index2 = random.randrange(0,14)
 
         self.__emojiP0 = emCssSampleList[index1]
-        self.__emojiP1 = emCssSampleList[index2]        
-        print("other"+str(other))
+        self.__emojiP1 = emCssSampleList[index2]
         if other:
-            print("other")
             self.__dict__ = deepcopy(other.__dict__)
-            print(self.player)
 
     def addMessage(self, text, playerID):
         if len(self.__chat)>19:
@@ -94,6 +92,9 @@ class Game():
     def getChat(self):
         return self.__chat
 
+    def getJoined(self):
+        return self.__joined
+
     def getPlayerID(self, index):
         if index == 0:
             return self.__player0ID
@@ -101,8 +102,8 @@ class Game():
             return self.__player1ID
         else:
             return "NO PLAYER"
-        
-    
+
+
     def getOpponentPlayerID(self, id):
         if id == self.__player0ID:
             return self.__player1ID
@@ -119,7 +120,7 @@ class Game():
             self.opponent = Token.PLAYER1
         else:
             self.player = Token.PLAYER1
-            self.opponent = Token.PLAYER0     
+            self.opponent = Token.PLAYER0
         self.__tokenWhoWin = -1
         self.__numberOfGame = self.__numberOfGame +1
 
@@ -172,7 +173,7 @@ class Game():
                 if self.__grid[line][w] == Token.EMPTY:
                     self.__grid[line][w] = self.player
                     self.player,self.opponent = self.opponent,self.player
-                    
+
                     if player == self.__player0ID:
                         listDic['id'] = '0'
                     else:
@@ -218,9 +219,12 @@ class Game():
 
     def getPlayer1Status(self):
         return (time.time()-self.__timeP1) < DELAY_PLAYER_DEAD
-        
+
     def getAI(self):
         return self.__AI
+
+    def setAI(self, AI):
+        self.__AI = AI
 
 
     def isWin(self):
@@ -343,10 +347,11 @@ class Game():
 
     def getIdJoin(self):
         listDic = {}
-        if self.__player1ID == "":
+        if self.__joined == False:
             self.__player1ID = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(10))
             listDic['gameID'] = self.__gameID
             listDic['playerID'] = str(self.__player1ID)
+            self.__joined = True
         else:
             listDic['gameID'] = 0
             listDic['playerID'] = 0
@@ -455,7 +460,7 @@ class Game():
 
         dwg.save()
         cairosvg.svg2png(url=storePath+'svgBoard.svg', write_to=storePath+'svgBoard.png')
-    
+
     #AI PART
     def move(self,x):
         board = Game(other=self)
@@ -465,10 +470,10 @@ class Game():
                 break
         board.player,board.opponent = board.opponent,board.player
         return board
- 
+
     def __heuristic(self):
         return self.__heuristic_score(self.player)-self.__heuristic_score(self.opponent)
- 
+
     def __heuristic_score(self, player):
         lines = self.__winlines(player)
         winpositions = self.__winpositions(lines,player)
@@ -490,7 +495,7 @@ class Game():
             heightscore = height - int(sum(heights) / float(len(heights)))
             score=score+pieces*heightscore
         return score
- 
+
     def __winpositions(self, lines, player):
         lines = self.__winlines(player)
         winpositions = {}
@@ -507,7 +512,7 @@ class Game():
             if pieces==3:
                 winpositions["{0},{1}".format(x,y)]=True
         return winpositions
- 
+
     def __winlines(self, player):
         lines = []
         # horizontal
@@ -562,7 +567,7 @@ class Game():
                     winning = []
         # return
         return lines
- 
+
     def __iterative_deepening(self,think):
         g = (3,None)
         start = time.time()
@@ -573,7 +578,7 @@ class Game():
                 print("break")
                 break
         return g;
- 
+
     def __mtdf(self, g, d):
         upperBound = +1000
         lowerBound = -1000
@@ -591,7 +596,7 @@ class Game():
             else:
                 lowerBound = g[0]
         return best
- 
+
     def __minimax(self, player, depth, alpha, beta):
         lower = Game.nodes.get(str(self)+str(depth)+'lower',None)
         upper = Game.nodes.get(str(self)+str(depth)+'upper',None)
@@ -637,17 +642,17 @@ class Game():
             Game.nodes[str(self)+str(depth)+"lower"] = best[0]
             Game.nodes[self.__mirror()+str(depth)+"lower"] = best[0]
         return best
- 
+
     def best(self):
         return self.__iterative_deepening(2)[1]
- 
+
     def tied(self):
-        for x in range(width):      
+        for x in range(width):
                 for y in range(height):
                     if self.__grid[x][y]==self.empty:
                         return False
         return True
- 
+
     def won(self):
         # horizontal
         for y in range(height):
@@ -701,7 +706,7 @@ class Game():
                     winning = []
         # default
         return None
- 
+
     def __mirror(self):
         string = ''
         for y in range(height):
@@ -709,7 +714,7 @@ class Game():
                 string+=' '+self.__grid[width-1-x][height-1-y].name
             string+="\n"
         return string
- 
+
     def __str__(self):
         string = ''
         for y in range(height):
