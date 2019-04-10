@@ -305,7 +305,7 @@ Give the data of /getGraph/graphStatistic but in JSON format.
 ### /getPngBoard/\<string:gameID>
 Will retrurn a simple image of the board designed by the game ID.
 
-![pngBoard](https://static1.squarespace.com/static/5aca3b7ab10598283d220390/5afd7122575d1f528bda5053/5c9a2c6aee6eb05b1f45dd54/1553607787221/v8Ya9HULjj.png)
+![pngBoard](https://images.squarespace-cdn.com/content/5aca3b7ab10598283d220390/1553616192034-OYDBIG4DP2TJRVCHE56D/connectFout.png?content-type=image%2Fpng)
 
 ### /getSvgBoard/\<string:gameID>
 Same as getPngBoard but in svg Format.
