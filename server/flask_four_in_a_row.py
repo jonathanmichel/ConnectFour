@@ -10,9 +10,12 @@ import GraphManager
 import requests
 import json
 from afterResponse import AfterResponse
+from afterThisResponse import AfterThisResponse
 from flask import Flask, jsonify, Response, request, send_file, redirect, stream_with_context
 from fourInARow import *
 from flask_cors import CORS
+from threading import Lock, Timer
+import SendMail
 
 class GameStatistics():
     def __init__(self):
@@ -73,16 +76,21 @@ sys.path.insert(0, file_path)
 app = Flask(__name__)
 cors = CORS(app)
 AfterResponse(app)
+AfterThisResponse(app)
 
-gamePickleFileName = "gamePickleFile"
-gameStatisticsPickleFileName = "gameStatisticsPickleFileName"
+homeFolder = "/home/lucblender/"
+storePath = homeFolder + 'ConnectFour/server/'
 
-storePath = '/home/lucblender/ConnectFour/server/'
+gamePickleFileName = homeFolder + "ConnectFour/server/saves/gamePickleFile"
+gameStatisticsPickleFileName = homeFolder + "ConnectFour/server/saves/gameStatisticsPickleFileName"
+
+storePath = homeFolder + 'ConnectFour/server/'
 
 whiteLargeSquare = "em-white_large_square"
 poop = "em-poop"
 
 gameQueueAI = []
+gameQueueAiMutex = Lock()
 
 timeCheck = 60*5
 timeSleep = 4
@@ -157,6 +165,23 @@ def test():
         app.logger.info('request finished')
         yield ''
     return Response(stream_with_context(generate()))
+    
+@app.route('/getGameStream/<string:playerID>', strict_slashes=False)
+def getGameStream(playerID):
+    def generate():
+        for game in gameArray:
+            if game.isPlayer(playerID) == True:
+                for i in range(0,5):
+                    time.sleep(1)
+                    tmp = game.getGame(playerID)
+                    yield json.dumps(tmp)
+        listDic = {}
+        listDic['ERROR'] = "Player has no Game Assigned"
+
+        tmp = jsonify(listDic)
+        tmp.headers['Access-Control-Allow-Origin'] = '*'
+        return tmp
+    return Response(stream_with_context(generate()))
 
 @app.route('/createGame', strict_slashes=False)
 def createGame():
@@ -208,15 +233,35 @@ def gameRow(row):
 
 @app.route('/play/<string:playerID>/<int:row>', strict_slashes=False)
 def playRow(playerID,row):
+    global gameQueueAI
+    @app.after_this_response
+    def after():       
+        global gameQueueAI
+        global gameQueueAiMutex
+        
+        gameQueueAiMutex.acquire()
+        if len(gameQueueAI) != 0:           
+            for playerID in gameQueueAI:
+                for game in gameArray:
+                    if game.isPlayer(playerID) == True:
+                        move = game.best()
+                        if move!=None:
+                            print("move"+str(move))
+                            game.setPlayToken(playerID,move)
+                        else:
+                            print("wtf")
+                        break
+        gameQueueAI = []        
+        gameQueueAiMutex.release()
+        
+        print("after")
+        
     for game in gameArray:
         if game.isPlayer(playerID) == True:
             tmp = game.setPlayToken(playerID,row)
             if game.getAI() == True:
-                move = game.best()
-                if move!=None:
-                    print("move"+str(move))
-                    game.setPlayToken(game.getOpponentPlayerID(playerID),move)
-
+                gameQueueAI.append(game.getOpponentPlayerID(playerID))
+            tmp = jsonify(tmp)
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
     listDic = {}
@@ -235,7 +280,7 @@ def getShittyEmojiGame():
 def getGame(playerID):
     for game in gameArray:
         if game.isPlayer(playerID) == True:
-            tmp = game.getGame(playerID)
+            tmp = jsonify(game.getGame(playerID))
             tmp.headers['Access-Control-Allow-Origin'] = '*'
             return tmp
     listDic = {}
@@ -396,12 +441,12 @@ def getDataFromGamesCounterReset():
 @app.route('/getGraph/gameSessionPlayed', strict_slashes=False)
 def getGraphGameSessionPlayed():
     GraphManager.gameSessionPlayed(processDataFromGames())
-    return send_file('gameSessionPlayed.png', mimetype='image/png')
+    return send_file(storePath + 'gameSessionPlayed.png', mimetype='image/png')
 
 @app.route('/getGraph/graphStatistic/<int:size>', strict_slashes=False)
 def getGraphGraphStatistic(size):
     GraphManager.graphStatistic(processDataFromGames(),size)
-    return send_file('graphStatistic.png', mimetype='image/png')
+    return send_file(storePath + 'graphStatistic.png', mimetype='image/png')
 
 @app.route('/getGraph/graphStatisticRaw/<int:size>', strict_slashes=False)
 def graphStatisticRaw(size):
@@ -413,26 +458,26 @@ def graphStatisticRaw(size):
 @app.route('/getGraph/gameSessionPlayedSVG', strict_slashes=False)
 def getGraphGameSessionPlayedSVGsize():
     GraphManager.gameSessionPlayed(processDataFromGames())
-    return send_file('gameSessionPlayed.svg', mimetype='image/svg+xml')
+    return send_file(storePath + 'gameSessionPlayed.svg', mimetype='image/svg+xml')
 
 @app.route('/getGraph/graphStatisticSVG/<int:size>', strict_slashes=False)
 def getGraphGraphStatisticSVG(size):
     GraphManager.graphStatistic(processDataFromGames(),size)
-    return send_file('graphStatistic.svg', mimetype='image/svg+xml')
+    return send_file(storePath + 'graphStatistic.svg', mimetype='image/svg+xml')
 
 @app.route('/getSvgBoard/<string:gameID>', strict_slashes=False)
 def getSvgBoard(gameID):
     for game in gameArray:
         if game.getGameId() == gameID:
             game.createSvgBoard()
-    return send_file('svgBoard.svg', mimetype='image/svg+xml')
+    return send_file(storePath + 'svgBoard.svg', mimetype='image/svg+xml')
 
 @app.route('/getPngBoard/<string:gameID>', strict_slashes=False)
 def getPngBoard(gameID):
     for game in gameArray:
         if game.getGameId() == gameID:
             game.createSvgBoard()
-    return send_file('svgBoard.png', mimetype='image/png')
+    return send_file(storePath + 'svgBoard.png', mimetype='image/png')
 
 @app.route('/chat',methods=['POST'], strict_slashes=False)
 def chat():
@@ -502,7 +547,10 @@ def chatTest():
 @app.before_request
 def beforeRequest():
     gameTimeCheck()
-    ip = request.environ['HTTP_X_FORWARDED_FOR']
+    try:
+        ip = request.environ['HTTP_X_FORWARDED_FOR']
+    except:
+        ip = request.environ['REMOTE_ADDR']
     if "," in ip:
         ip = ip.split(", ")[1]
     gameStatistics.ipQueue.append(ip) #add the ip adress in the ip queue to be tested
@@ -616,6 +664,18 @@ def processDataFromGames():
     listDic['ipRequestsNumber'] = gameStatistics.ipRequestsNumber
     pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
     return listDic
+    
+def processDataFromGamesCounterReset():
+    toReturn = processDataFromGames()    
+    gameStatistics.gameToday = 0
+    gameStatistics.gameKilledToday = 0
+    gameStatistics.gameKilledWithoutJoinToday = 0
+    gameStatistics.meanPlayedGameToday = 0
+    gameStatistics.ipAddressToday = {}
+    gameStatistics.ipLocationToday = {}
+    gameStatistics.ipRequestsNumberToday = {}
+    pickle.dump(gameStatistics, open(gameStatisticsPickleFileName, 'wb'))
+    return toReturn
 
 def addHeader(text):
     resp = Response(text)
@@ -652,12 +712,24 @@ def gameTimeCheck():
 
     gameArray = [x for x in gameArray if x not in toRemove]
     pickle.dump(gameArray, open(gamePickleFileName, 'wb'))
+    
+def everyDayTask():
+    SendMail.sendMail("ConnectFour Docker EveryDayStats from: "+ datetime.today().strftime('%d.%m.%Y'),json.dumps(processDataFromGamesCounterReset(), indent=4, sort_keys=True, ensure_ascii=False))
+    x=datetime.today()
+    y=x.replace(day=x.day+1, hour=1, minute=0, second=0, microsecond=0)
+    #y=x.replace(minute=x.minute+1)
+    delta_t=y-x
+    secs=delta_t.total_seconds()+1
+    t = Timer(secs, everyDayTask)
+    t.start()    
+    print("everyDayTask")
 
 
 from logging import FileHandler, Formatter, DEBUG
 
 if __name__ == '__main__':
     try:
+        everyDayTask()
         file_handler = FileHandler("flask.log")
         file_handler.setLevel(DEBUG)
         file_handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))

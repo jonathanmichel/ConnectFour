@@ -25,7 +25,8 @@ class messageChat():
 height, width = 6, 7
 DELAY_PLAYER_DEAD = 10
 radiusSvgCircle = 20
-storePath = '/home/lucblender/ConnectFour/server/'
+homeFolder = "/home/lucblender/"
+storePath = homeFolder + 'ConnectFour/server/'
 
 emCssSampleList = ["em-mahjong","em-candy","em-butterfly","em-sparkles","em-aquarius","em-popcorn","em-recycle","em-symbols","em-telephone_receiver","em-bicyclist","em-dizzy_face","em-airplane","em-bulb","em-burrito"]
 
@@ -156,18 +157,18 @@ class Game():
 
         if self.isWin() != -1:
             listDic["ERROR"] = "SOMEBODY WON DAMMIT, STOP PLAYING"
-            return jsonify(listDic)
+            return listDic
         #TODO CHANGED
         if self.player.value == 0 and player != self.__player0ID:
             listDic["ERROR"] = "NOT YOUR TURN"
-            return jsonify(listDic)
+            return listDic
         if self.player.value == 1 and player != self.__player1ID:
             listDic["ERROR"] = "NOT YOUR TURN"
-            return jsonify(listDic)
+            return listDic
 
         if line > width or line < 0:
             listDic["ERROR"] = "TOKEN OUT OF GRID"
-            return jsonify(listDic)
+            return listDic
         else:
             for w in range(0,height):
                 if self.__grid[line][w] == Token.EMPTY:
@@ -192,7 +193,7 @@ class Game():
                         messageDic['text']=message.text
                         messageDic['timestamp']=message.timestamp
                         listDic['messages'].append(messageDic)
-                    return jsonify(listDic)
+                    return listDic
 
             if player == self.__player0ID:
                 listDic['id'] = '0'
@@ -212,7 +213,7 @@ class Game():
                 messageDic['text']=message.text
                 messageDic['timestamp']=message.timestamp
                 listDic['messages'].append(messageDic)
-            return jsonify(listDic)
+            return listDic
 
     def getPlayer0Status(self):
         return (time.time()-self.__timeP0) < DELAY_PLAYER_DEAD
@@ -335,7 +336,7 @@ class Game():
             messageDic['timestamp']=message.timestamp
             listDic['messages'].append(messageDic)
 
-        return jsonify(listDic)
+        return listDic
 
     def getIdNew(self):
         self.__time = time.time()
@@ -573,9 +574,7 @@ class Game():
         start = time.time()
         for d in range(1,10):
             g = self.__mtdf(g, d)
-            print(time.time()-start>think)
             if time.time()-start>think:
-                print("break")
                 break
         return g;
 

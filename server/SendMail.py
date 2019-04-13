@@ -48,7 +48,7 @@ def sendMail(subject, message):
 
     # setup the parameters of the message
     msg['From']=EMAIL
-    msg['To']= "lucasbonvin@hotmail.com, michel.jonath96@gmail.com"
+    msg['To']= "lucasbonvin@hotmail.com"#, michel.jonath96@gmail.com"
     msg['Subject']=subject
 
     # add in the message body
