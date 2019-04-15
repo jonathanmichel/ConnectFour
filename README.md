@@ -41,7 +41,7 @@ sudo apt-get install python3-pip
 sudo apt-get install libcairo2-dev
 ```
 
-The python dependency are flask (rest server), flask-cors (the api is compatible with CORS (Cross Origin Resource Sharing)) and emoji(old GUI but keep it for nostalgia), matplotlib (statistics plot of the game), pytz (timezone for python), svgwrite (cause we do svg yes), cairocffi (for cairosvg) and cairosvg (we still do svg yes).
+The python dependency are flask (rest server), flask-cors (the api is compatible with CORS (Cross Origin Resource Sharing)) and emoji(old GUI but keep it for nostalgia), matplotlib (statistics plot of the game), pytz (timezone for python), svgwrite (cause we do svg yes), cairocffi (for cairosvg), cairosvg (we still do svg yes) and requests to do http request.
 ```
 sudo pip3 install flask
 sudo pip3 install emoji
@@ -51,6 +51,7 @@ sudo pip3 install pytz
 sudo pip3 install svgwrite
 sudo pip3 install cairocffi
 sudo pip3 install cairosvg
+sudo pip3 install requests
 ```
 
 If you want to test your server on the web and not only in local, you can use ngrok or serveo, the use of those are described above. To install ngrok follow the instruction here: https://ngrok.com/download. 
@@ -276,12 +277,12 @@ It is completly similar to ```/getDataFromGames```, will return the same outputs
 I told you, I like statistics, but what is better than just statistics? Graphs with statistics!
 the gameSessionPlayed graph give you the mean of played session overall, the mean of played session today and the amount of game session played for all online game.
 
-![gameSessionPlayed](https://lucblender.pythonanywhere.com/getGraph/gameSessionPlayed) 
+![gameSessionPlayed](http://vps.techiteasy.ch:5002/getGraph/gameSessionPlayed) 
     
 #### /getGraph/graphStatistic/\<int:size>
 The software store everyday the output of ```/getDataFromGames``` and so, with ``` /getGraph/graphStatistic ```, you can have a graph of some of those statistics in function of the time. The size parameter is to restrain the amount of data you will get. If size = 0, will get all the data stored (not the best thing to do).
 
-![graphStatistic](https://lucblender.pythonanywhere.com/getGraph/graphStatistic/10) 
+![graphStatistic](http://vps.techiteasy.ch:5002/getGraph/graphStatistic/10) 
 
 
 #### /getGraph/gameSessionPlayedSVG
